@@ -1,0 +1,452 @@
+{
+  "note": "Synthetic leaf image used for load/inference smoke only. Does NOT validate disease diagnostic accuracy.",
+  "sample_image": "C:\\Users\\ARKA\\Downloads\\crop_Project_SIH\\Backend\\data\\_hf_verify_samples\\synthetic_leaf.jpg",
+  "models": {
+    "kimcomehome/plantvillage-vit-leaf-disease": {
+      "model_id": "kimcomehome/plantvillage-vit-leaf-disease",
+      "framework": "transformers",
+      "config_verified": true,
+      "model_loaded": true,
+      "real_inference": true,
+      "status": "PASS",
+      "architecture": "ViTForImageClassification",
+      "num_labels": 38,
+      "id2label": {
+        "0": "Apple___Apple_scab",
+        "1": "Apple___Black_rot",
+        "2": "Apple___Cedar_apple_rust",
+        "3": "Apple___healthy",
+        "4": "Blueberry___healthy",
+        "5": "Cherry_(including_sour)___Powdery_mildew",
+        "6": "Cherry_(including_sour)___healthy",
+        "7": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+        "8": "Corn_(maize)___Common_rust_",
+        "9": "Corn_(maize)___Northern_Leaf_Blight",
+        "10": "Corn_(maize)___healthy",
+        "11": "Grape___Black_rot",
+        "12": "Grape___Esca_(Black_Measles)",
+        "13": "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)",
+        "14": "Grape___healthy",
+        "15": "Orange___Haunglongbing_(Citrus_greening)",
+        "16": "Peach___Bacterial_spot",
+        "17": "Peach___healthy",
+        "18": "Pepper,_bell___Bacterial_spot",
+        "19": "Pepper,_bell___healthy",
+        "20": "Potato___Early_blight",
+        "21": "Potato___Late_blight",
+        "22": "Potato___healthy",
+        "23": "Raspberry___healthy",
+        "24": "Soybean___healthy",
+        "25": "Squash___Powdery_mildew",
+        "26": "Strawberry___Leaf_scorch",
+        "27": "Strawberry___healthy",
+        "28": "Tomato___Bacterial_spot",
+        "29": "Tomato___Early_blight",
+        "30": "Tomato___Late_blight",
+        "31": "Tomato___Leaf_Mold",
+        "32": "Tomato___Septoria_leaf_spot",
+        "33": "Tomato___Spider_mites Two-spotted_spider_mite",
+        "34": "Tomato___Target_Spot",
+        "35": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+        "36": "Tomato___Tomato_mosaic_virus",
+        "37": "Tomato___healthy"
+      },
+      "predicted_label": "Soybean___healthy",
+      "confidence": 0.08719,
+      "top3": [
+        {
+          "label": "Soybean___healthy",
+          "confidence": 0.08719
+        },
+        {
+          "label": "Tomato___Late_blight",
+          "confidence": 0.053678
+        },
+        {
+          "label": "Orange___Haunglongbing_(Citrus_greening)",
+          "confidence": 0.05166
+        }
+      ],
+      "error": null,
+      "load_seconds": 104.33,
+      "infer_seconds": 0.772,
+      "param_estimate": 85827878
+    },
+    "wambugu71/crop_leaf_diseases_vit": {
+      "model_id": "wambugu71/crop_leaf_diseases_vit",
+      "framework": "transformers",
+      "config_verified": true,
+      "model_loaded": true,
+      "real_inference": true,
+      "status": "PASS",
+      "architecture": "ViTForImageClassification",
+      "num_labels": 13,
+      "id2label": {
+        "0": "Corn___Common_Rust",
+        "1": "Corn___Gray_Leaf_Spot",
+        "2": "Corn___Healthy",
+        "3": "Invalid",
+        "4": "Potato___Early_Blight",
+        "5": "Potato___Healthy",
+        "6": "Potato___Late_Blight",
+        "7": "Rice___Brown_Spot",
+        "8": "Rice___Healthy",
+        "9": "Rice___Leaf_Blast",
+        "10": "Wheat___Brown_Rust",
+        "11": "Wheat___Healthy",
+        "12": "Wheat___Yellow_Rust"
+      },
+      "predicted_label": "Rice___Leaf_Blast",
+      "confidence": 0.270815,
+      "top3": [
+        {
+          "label": "Rice___Leaf_Blast",
+          "confidence": 0.270815
+        },
+        {
+          "label": "Invalid",
+          "confidence": 0.228547
+        },
+        {
+          "label": "Rice___Brown_Spot",
+          "confidence": 0.223428
+        }
+      ],
+      "error": null,
+      "load_seconds": 10.84,
+      "infer_seconds": 0.13,
+      "param_estimate": 5526925
+    },
+    "LishaV01/agriculture-crop-disease-detection": {
+      "model_id": "LishaV01/agriculture-crop-disease-detection",
+      "framework": "transformers",
+      "config_verified": true,
+      "model_loaded": true,
+      "real_inference": true,
+      "status": "PASS",
+      "architecture": "ViTForImageClassification",
+      "num_labels": 20,
+      "id2label": {
+        "0": "Corn___Common_Rust",
+        "1": "Corn___Gray_Leaf_Spot",
+        "2": "Corn___Healthy",
+        "3": "Invalid",
+        "4": "Potato___Early_Blight",
+        "5": "Potato___Healthy",
+        "6": "Potato___Late_Blight",
+        "7": "Rice___Brown_Spot",
+        "8": "Rice___Healthy",
+        "9": "Rice___Leaf_Blast",
+        "10": "Wheat___Brown_Rust",
+        "11": "Wheat___Healthy",
+        "12": "Wheat___Yellow_Rust",
+        "13": "Rice_Bacterial Blight Disease",
+        "14": "Rice_Blast Disease",
+        "15": "Rice_Brown Spot Disease",
+        "16": "Rice_False Smut Disease",
+        "17": "sugarcane_Bacterial Blight",
+        "18": "sugarcane_Healthy",
+        "19": "sugarcane_Red Rot"
+      },
+      "predicted_label": "Rice_Brown Spot Disease",
+      "confidence": 0.986276,
+      "top3": [
+        {
+          "label": "Rice_Brown Spot Disease",
+          "confidence": 0.986276
+        },
+        {
+          "label": "sugarcane_Healthy",
+          "confidence": 0.013008
+        },
+        {
+          "label": "sugarcane_Bacterial Blight",
+          "confidence": 0.000235
+        }
+      ],
+      "error": null,
+      "load_seconds": 11.45,
+      "infer_seconds": 0.121,
+      "param_estimate": 5528276
+    },
+    "Arko007/nfnet-f1-plant-disease": {
+      "model_id": "Arko007/nfnet-f1-plant-disease",
+      "framework": "timm+safetensors",
+      "config_verified": true,
+      "model_loaded": true,
+      "real_inference": true,
+      "status": "PASS",
+      "architecture": "nfnet_f1",
+      "num_labels": 88,
+      "id2label": {
+        "0": "Apple__black_rot",
+        "1": "Apple__healthy",
+        "2": "Apple__rust",
+        "3": "Apple__scab",
+        "4": "Cassava__bacterial_blight",
+        "5": "Cassava__brown_streak_disease",
+        "6": "Cassava__green_mottle",
+        "7": "Cassava__healthy",
+        "8": "Cassava__mosaic_disease",
+        "9": "Cherry__healthy",
+        "10": "Cherry__powdery_mildew",
+        "11": "Chili__healthy",
+        "12": "Chili__leaf curl",
+        "13": "Chili__leaf spot",
+        "14": "Chili__whitefly",
+        "15": "Chili__yellowish",
+        "16": "Coffee__cercospora_leaf_spot",
+        "17": "Coffee__healthy",
+        "18": "Coffee__red_spider_mite",
+        "19": "Coffee__rust",
+        "20": "Corn__common_rust",
+        "21": "Corn__gray_leaf_spot",
+        "22": "Corn__healthy",
+        "23": "Corn__northern_leaf_blight",
+        "24": "Cucumber__diseased",
+        "25": "Cucumber__healthy",
+        "26": "Gauva__diseased",
+        "27": "Gauva__healthy",
+        "28": "Grape__black_measles",
+        "29": "Grape__black_rot",
+        "30": "Grape__healthy",
+        "31": "Grape__leaf_blight_(isariopsis_leaf_spot)",
+        "32": "Jamun__diseased",
+        "33": "Jamun__healthy",
+        "34": "Lemon__diseased",
+        "35": "Lemon__healthy",
+        "36": "Mango__diseased",
+        "37": "Mango__healthy",
+        "38": "Peach__bacterial_spot",
+        "39": "Peach__healthy",
+        "40": "Pepper_bell__bacterial_spot",
+        "41": "Pepper_bell__healthy",
+        "42": "Pomegranate__diseased",
+        "43": "Pomegranate__healthy",
+        "44": "Potato__early_blight",
+        "45": "Potato__healthy",
+        "46": "Potato__late_blight",
+        "47": "Rice__brown_spot",
+        "48": "Rice__healthy",
+        "49": "Rice__hispa",
+        "50": "Rice__leaf_blast",
+        "51": "Rice__neck_blast",
+        "52": "Soybean__bacterial_blight",
+        "53": "Soybean__caterpillar",
+        "54": "Soybean__diabrotica_speciosa",
+        "55": "Soybean__downy_mildew",
+        "56": "Soybean__healthy",
+        "57": "Soybean__mosaic_virus",
+        "58": "Soybean__powdery_mildew",
+        "59": "Soybean__rust",
+        "60": "Soybean__southern_blight",
+        "61": "Strawberry___leaf_scorch",
+        "62": "Strawberry__healthy",
+        "63": "Sugarcane__bacterial_blight",
+        "64": "Sugarcane__healthy",
+        "65": "Sugarcane__red_rot",
+        "66": "Sugarcane__red_stripe",
+        "67": "Sugarcane__rust",
+        "68": "Tea__algal_leaf",
+        "69": "Tea__anthracnose",
+        "70": "Tea__bird_eye_spot",
+        "71": "Tea__brown_blight",
+        "72": "Tea__healthy",
+        "73": "Tea__red_leaf_spot",
+        "74": "Tomato__bacterial_spot",
+        "75": "Tomato__early_blight",
+        "76": "Tomato__healthy",
+        "77": "Tomato__late_blight",
+        "78": "Tomato__leaf_mold",
+        "79": "Tomato__mosaic_virus",
+        "80": "Tomato__septoria_leaf_spot",
+        "81": "Tomato__spider_mites_(two_spotted_spider_mite)",
+        "82": "Tomato__target_spot",
+        "83": "Tomato__yellow_leaf_curl_virus",
+        "84": "Wheat__brown_rust",
+        "85": "Wheat__healthy",
+        "86": "Wheat__septoria",
+        "87": "Wheat__yellow_rust"
+      },
+      "predicted_label": "Sugarcane__red_rot",
+      "confidence": 0.92736,
+      "top3": [
+        {
+          "label": "Sugarcane__red_rot",
+          "confidence": 0.92736
+        },
+        {
+          "label": "Sugarcane__red_stripe",
+          "confidence": 0.02872
+        },
+        {
+          "label": "Rice__brown_spot",
+          "confidence": 0.019337
+        }
+      ],
+      "error": null,
+      "load_seconds": 202.33,
+      "infer_seconds": 3.288,
+      "param_estimate": 129831656,
+      "license_note": "cc-by-nc-sa-4.0 (non-commercial per Hub card)",
+      "card_metrics_file": {
+        "epoch": 25,
+        "val_accuracy": 0.9539706626201315,
+        "val_f1": 0.8860085025247758
+      }
+    }
+  },
+  "crop_label_hits": {
+    "kimcomehome/plantvillage-vit-leaf-disease": {
+      "Sugarcane": [],
+      "Rice": [],
+      "Wheat": [],
+      "Grape": [
+        "Grape___Black_rot",
+        "Grape___Esca_(Black_Measles)",
+        "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)",
+        "Grape___healthy"
+      ],
+      "Cotton": [],
+      "Sunflower": [],
+      "Tomato": [
+        "Tomato___Bacterial_spot",
+        "Tomato___Early_blight",
+        "Tomato___Late_blight",
+        "Tomato___Leaf_Mold",
+        "Tomato___Septoria_leaf_spot",
+        "Tomato___Spider_mites Two-spotted_spider_mite",
+        "Tomato___Target_Spot",
+        "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+        "Tomato___Tomato_mosaic_virus",
+        "Tomato___healthy"
+      ],
+      "Potato": [
+        "Potato___Early_blight",
+        "Potato___Late_blight",
+        "Potato___healthy"
+      ],
+      "Maize/Corn": [
+        "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+        "Corn_(maize)___Common_rust_",
+        "Corn_(maize)___Northern_Leaf_Blight",
+        "Corn_(maize)___healthy"
+      ]
+    },
+    "wambugu71/crop_leaf_diseases_vit": {
+      "Sugarcane": [],
+      "Rice": [
+        "Rice___Brown_Spot",
+        "Rice___Healthy",
+        "Rice___Leaf_Blast"
+      ],
+      "Wheat": [
+        "Wheat___Brown_Rust",
+        "Wheat___Healthy",
+        "Wheat___Yellow_Rust"
+      ],
+      "Grape": [],
+      "Cotton": [],
+      "Sunflower": [],
+      "Tomato": [],
+      "Potato": [
+        "Potato___Early_Blight",
+        "Potato___Healthy",
+        "Potato___Late_Blight"
+      ],
+      "Maize/Corn": [
+        "Corn___Common_Rust",
+        "Corn___Gray_Leaf_Spot",
+        "Corn___Healthy"
+      ]
+    },
+    "LishaV01/agriculture-crop-disease-detection": {
+      "Sugarcane": [
+        "sugarcane_Bacterial Blight",
+        "sugarcane_Healthy",
+        "sugarcane_Red Rot"
+      ],
+      "Rice": [
+        "Rice_Bacterial Blight Disease",
+        "Rice_Blast Disease",
+        "Rice_Brown Spot Disease",
+        "Rice_False Smut Disease",
+        "Rice___Brown_Spot",
+        "Rice___Healthy",
+        "Rice___Leaf_Blast"
+      ],
+      "Wheat": [
+        "Wheat___Brown_Rust",
+        "Wheat___Healthy",
+        "Wheat___Yellow_Rust"
+      ],
+      "Grape": [],
+      "Cotton": [],
+      "Sunflower": [],
+      "Tomato": [],
+      "Potato": [
+        "Potato___Early_Blight",
+        "Potato___Healthy",
+        "Potato___Late_Blight"
+      ],
+      "Maize/Corn": [
+        "Corn___Common_Rust",
+        "Corn___Gray_Leaf_Spot",
+        "Corn___Healthy"
+      ]
+    },
+    "Arko007/nfnet-f1-plant-disease": {
+      "Sugarcane": [
+        "Sugarcane__bacterial_blight",
+        "Sugarcane__healthy",
+        "Sugarcane__red_rot",
+        "Sugarcane__red_stripe",
+        "Sugarcane__rust"
+      ],
+      "Rice": [
+        "Rice__brown_spot",
+        "Rice__healthy",
+        "Rice__hispa",
+        "Rice__leaf_blast",
+        "Rice__neck_blast"
+      ],
+      "Wheat": [
+        "Wheat__brown_rust",
+        "Wheat__healthy",
+        "Wheat__septoria",
+        "Wheat__yellow_rust"
+      ],
+      "Grape": [
+        "Grape__black_measles",
+        "Grape__black_rot",
+        "Grape__healthy",
+        "Grape__leaf_blight_(isariopsis_leaf_spot)"
+      ],
+      "Cotton": [],
+      "Sunflower": [],
+      "Tomato": [
+        "Tomato__bacterial_spot",
+        "Tomato__early_blight",
+        "Tomato__healthy",
+        "Tomato__late_blight",
+        "Tomato__leaf_mold",
+        "Tomato__mosaic_virus",
+        "Tomato__septoria_leaf_spot",
+        "Tomato__spider_mites_(two_spotted_spider_mite)",
+        "Tomato__target_spot",
+        "Tomato__yellow_leaf_curl_virus"
+      ],
+      "Potato": [
+        "Potato__early_blight",
+        "Potato__healthy",
+        "Potato__late_blight"
+      ],
+      "Maize/Corn": [
+        "Corn__common_rust",
+        "Corn__gray_leaf_spot",
+        "Corn__healthy",
+        "Corn__northern_leaf_blight"
+      ]
+    }
+  }
+}

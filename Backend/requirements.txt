@@ -1,0 +1,31 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+email-validator>=2.1.0
+python-multipart>=0.0.9
+motor>=3.4.0
+pymongo>=4.6.0
+chromadb>=0.4.24
+groq>=0.9.0
+httpx>=0.27.0
+pillow>=10.2.0
+numpy>=1.26.0
+pyjwt>=2.8.0
+bcrypt>=4.1.2
+python-dotenv>=1.0.1
+pytest>=8.1.0
+requests>=2.31.0
+
+# ML stack for Hugging Face ViT disease inference (CPU wheels).
+# Pin torch+torchvision as a compatible pair so AutoImageProcessor works in Docker.
+torch==2.14.0
+torchvision==0.29.0
+transformers>=4.40.0,<6
+# Pest object detection (primary: underdogquality/yolo11s-pest-detection).
+# Ultralytics is AGPL-3.0 — see docs/PEST_LICENSE_AND_DEPENDENCY_REVIEW.md
+ultralytics>=8.1.0
+huggingface_hub>=0.23.0
+# sentence-transformers>=2.6.0
+# langchain>=0.1.16
+# langchain-groq>=0.1.2

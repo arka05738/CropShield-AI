@@ -1,0 +1,21 @@
+# Keep secrets and local junk out of the Docker build context.
+.env
+.env.*
+!**/.env.example
+**/.env
+**/.env.local
+.git
+.gitignore
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/node_modules
+Frontend SIH
+Admin
+docs
+*.md
+!knowledge-base/**
+.cursor
+uploads
+Backend/uploads
+Backend/data/chroma

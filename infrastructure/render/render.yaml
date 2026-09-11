@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: cropshield-backend
+    runtime: docker
+    dockerfilePath: ./infrastructure/Dockerfile.backend
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: cropshield
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: ALLOW_DEMO_AUTH
+        value: "false"
+      - key: SEED_DEMO_DATA
+        value: "false"
+      - key: USE_MOCK_AI
+        value: "false"
+      - key: USE_MOCK_WEATHER
+        value: "false"
+      - key: USE_MOCK_PEST
+        value: "false"
+      - key: USE_HF_DISEASE_MODEL
+        value: "true"
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_MODEL_PLANTVILLAGE
+        value: kimcomehome/plantvillage-vit-leaf-disease
+      - key: HF_MODEL_SUGARCANE
+        value: LishaV01/agriculture-crop-disease-detection
+      - key: HF_MODEL_RICE
+        value: wambugu71/crop_leaf_diseases_vit
+      - key: HF_MODEL_WHEAT
+        value: wambugu71/crop_leaf_diseases_vit
+      - key: HF_MODEL_COTTON
+        value: YaswanthReddy23/ViT_Cotton
+      - key: HF_MODEL_SUNFLOWER
+        value: YaswanthReddy23/ViT_Sunflower
+      - key: HF_DISEASE_MODEL_ID
+        value: kimcomehome/plantvillage-vit-leaf-disease
+      # Pest OD — Hugging Face YOLO (same IDs as local reconciled stack)
+      - key: USE_PEST_HF_MODEL
+        value: "true"
+      - key: PEST_HF_MODEL_ID
+        value: underdogquality/yolo11s-pest-detection
+      - key: PEST_CONFIDENCE_THRESHOLD
+        value: "0.25"
+      - key: CHROMA_PERSIST_DIR
+        value: /app/Backend/data/chroma
+      - key: UPLOAD_DIR
+        value: /app/Backend/uploads

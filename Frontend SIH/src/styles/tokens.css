@@ -1,0 +1,31 @@
+/* CropShield Farmer — design tokens (agricultural, light, high-contrast) */
+:root {
+  --cs-bg: #eef3ee;
+  --cs-bg-accent: #e3ebe3;
+  --cs-surface: #ffffff;
+  --cs-surface-2: #f7faf7;
+  --cs-ink: #13261a;
+  --cs-ink-soft: #3d5245;
+  --cs-muted: #6a7b6f;
+  --cs-border: #c9d6cc;
+  --cs-border-strong: #a8bbae;
+  --cs-primary: #1a5c38;
+  --cs-primary-hover: #154c2e;
+  --cs-primary-soft: #dceee4;
+  --cs-primary-mid: #2f7a4f;
+  --cs-warn: #b86a12;
+  --cs-warn-soft: #fff3e0;
+  --cs-danger: #b42318;
+  --cs-danger-soft: #fce8e6;
+  --cs-success: #1f7a45;
+  --cs-success-soft: #e3f5ea;
+  --cs-info: #1d5f8a;
+  --cs-info-soft: #e4f1f8;
+  --cs-radius: 14px;
+  --cs-radius-sm: 10px;
+  --cs-radius-lg: 20px;
+  --cs-shadow: 0 1px 2px rgba(19, 38, 26, 0.06), 0 8px 24px rgba(19, 38, 26, 0.06);
+  --cs-touch: 48px;
+  --font-sans: 'Figtree', 'Segoe UI', sans-serif;
+  --font-heading: 'Literata', Georgia, serif;
+}

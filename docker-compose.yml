@@ -1,0 +1,85 @@
+# CropShield AI — local DEVELOPMENT stack
+# This file is NOT production configuration.
+# Production guards are enforced when ENVIRONMENT=production (see docs/PRODUCTION_*).
+#
+# Host port 8005 is used because host :8000 is commonly occupied by other services.
+# MongoDB volume `mongo_data` is preserved across backend rebuilds.
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.backend
+    image: crop_project_sih-backend:latest
+    container_name: cropshield-backend
+    ports:
+      - "8005:8000"
+    environment:
+      - PORT=8000
+      # Explicit local development profile (not production)
+      - ENVIRONMENT=development
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=cropshield
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - JWT_SECRET=${JWT_SECRET:-dev-only-compose-jwt-secret-min-32-chars}
+      # Soft demo auth without credentials — always off
+      - ALLOW_DEMO_AUTH=false
+      # Intentional LOCAL DEV seed of demo@ / admin@ accounts (NEVER in production)
+      - SEED_DEMO_DATA=true
+      # Real AI — do not inherit stale mock defaults
+      - USE_MOCK_AI=false
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - USE_MOCK_PEST=false
+      - USE_HF_DISEASE_MODEL=true
+      - USE_PEST_HF_MODEL=true
+      - PEST_HF_MODEL_ID=${PEST_HF_MODEL_ID:-underdogquality/yolo11s-pest-detection}
+      - PEST_CONFIDENCE_THRESHOLD=${PEST_CONFIDENCE_THRESHOLD:-0.25}
+      - CHROMA_PERSIST_DIR=/app/Backend/data/chroma
+      - UPLOAD_DIR=/app/Backend/uploads
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174
+    volumes:
+      - ./Backend/uploads:/app/Backend/uploads
+      - ./Backend/data/chroma:/app/Backend/data/chroma
+    depends_on:
+      - mongodb
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8005/api/v1}
+    container_name: cropshield-frontend
+    ports:
+      - "5173:80"
+    profiles:
+      - full
+    depends_on:
+      - backend
+
+  admin:
+    build:
+      context: .
+      dockerfile: infrastructure/Dockerfile.admin
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8005/api/v1}
+    container_name: cropshield-admin
+    ports:
+      - "5174:80"
+    profiles:
+      - full
+    depends_on:
+      - backend
+
+  mongodb:
+    image: mongo:7.0
+    container_name: cropshield-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

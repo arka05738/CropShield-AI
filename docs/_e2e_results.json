@@ -1,0 +1,318 @@
+{
+  "base_url": "http://127.0.0.1:8001/api/v1",
+  "tests": {
+    "health": {
+      "status_code": 200,
+      "elapsed_ms": 7.6,
+      "body": {
+        "status": "healthy",
+        "service": "CropShield AI",
+        "version": "1.1.1",
+        "environment": "development",
+        "persistence_mode": "memory",
+        "mongodb_connected": false,
+        "chromadb_documents": 20,
+        "chromadb_ok": true,
+        "llm_configured": true,
+        "disease_inference": "HUGGINGFACE_MULTI_MODEL",
+        "hf_models": {
+          "plantvillage": "kimcomehome/plantvillage-vit-leaf-disease",
+          "sugarcane": "LishaV01/agriculture-crop-disease-detection",
+          "rice": "wambugu71/crop_leaf_diseases_vit",
+          "wheat": "wambugu71/crop_leaf_diseases_vit",
+          "cotton": "YaswanthReddy23/ViT_Cotton",
+          "sunflower": "YaswanthReddy23/ViT_Sunflower"
+        },
+        "hf_supported_crops": [
+          "Apple",
+          "Blueberry",
+          "Cherry",
+          "Corn",
+          "Cotton",
+          "Grape",
+          "Maize",
+          "Orange",
+          "Peach",
+          "Pepper",
+          "Potato",
+          "Raspberry",
+          "Rice",
+          "Soybean",
+          "Squash",
+          "Strawberry",
+          "Sugarcane",
+          "Sunflower",
+          "Tomato",
+          "Wheat"
+        ],
+        "hf_unsupported_crops": [
+          "Chickpea",
+          "Millet",
+          "Sorghum"
+        ],
+        "pest_inference": "UNAVAILABLE",
+        "seed_demo_data": true,
+        "allow_demo_auth": false
+      }
+    },
+    "auth_farmer": {
+      "status_code": 200,
+      "role": "FARMER",
+      "has_token": true
+    },
+    "auth_admin": {
+      "status_code": 200,
+      "role": "ADMIN"
+    },
+    "crops": {
+      "Grape": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Grape",
+        "disease": "Esca (Black Measles)",
+        "confidence": 0.017107,
+        "inference_mode": "huggingface_trained",
+        "model_id": "kimcomehome/plantvillage-vit-leaf-disease",
+        "expected_model": "kimcomehome/plantvillage-vit-leaf-disease",
+        "model_match": true,
+        "raw_label": "Grape___Esca_(Black_Measles)",
+        "display_label": "Esca (Black Measles)",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": false,
+        "analysis_id": "an_c2f8669e10",
+        "total_api_ms": 28514.8,
+        "advisory_summary": "Detected signal for Grape / Esca (Black Measles), but verified guidance is unavailable for this exact crop\u2013disease pair in the curated knowledge base."
+      },
+      "Sugarcane": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Sugarcane",
+        "disease": "Healthy Crop",
+        "confidence": 0.044342,
+        "inference_mode": "huggingface_trained",
+        "model_id": "LishaV01/agriculture-crop-disease-detection",
+        "expected_model": "LishaV01/agriculture-crop-disease-detection",
+        "model_match": true,
+        "raw_label": "sugarcane_Healthy",
+        "display_label": "Healthy Crop",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": true,
+        "analysis_id": "an_3dbede89b7",
+        "total_api_ms": 2257.3,
+        "advisory_summary": "Sugarcane foliage appears healthy based on image-level assessment. Continue routine monitoring."
+      },
+      "Rice": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Rice",
+        "disease": "Brown Spot",
+        "confidence": 0.439985,
+        "inference_mode": "huggingface_trained",
+        "model_id": "wambugu71/crop_leaf_diseases_vit",
+        "expected_model": "wambugu71/crop_leaf_diseases_vit",
+        "model_match": true,
+        "raw_label": "Rice___Brown_Spot",
+        "display_label": "Brown Spot",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": false,
+        "analysis_id": "an_e2847033de",
+        "total_api_ms": 2192.8,
+        "advisory_summary": "Detected signal for Rice / Brown Spot, but verified guidance is unavailable for this exact crop\u2013disease pair in the curated knowledge base."
+      },
+      "Wheat": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Wheat",
+        "disease": "Healthy Crop",
+        "confidence": 0.047307,
+        "inference_mode": "huggingface_trained",
+        "model_id": "wambugu71/crop_leaf_diseases_vit",
+        "expected_model": "wambugu71/crop_leaf_diseases_vit",
+        "model_match": true,
+        "raw_label": "Wheat___Healthy",
+        "display_label": "Healthy Crop",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": true,
+        "analysis_id": "an_6a8a695015",
+        "total_api_ms": 55.7,
+        "advisory_summary": "Wheat foliage appears healthy based on image-level assessment. Continue routine monitoring."
+      },
+      "Cotton": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Cotton",
+        "disease": "Bacterial Blight",
+        "confidence": 0.274741,
+        "inference_mode": "huggingface_trained",
+        "model_id": "YaswanthReddy23/ViT_Cotton",
+        "expected_model": "YaswanthReddy23/ViT_Cotton",
+        "model_match": true,
+        "raw_label": "Bacterial Blight",
+        "display_label": "Bacterial Blight",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": false,
+        "analysis_id": "an_e6644e39c9",
+        "total_api_ms": 2967.6,
+        "advisory_summary": "Detected signal for Cotton / Bacterial Blight, but verified guidance is unavailable for this exact crop\u2013disease pair in the curated knowledge base."
+      },
+      "Sunflower": {
+        "http_status": 200,
+        "api_status": "completed",
+        "crop": "Sunflower",
+        "disease": "Leaf scars",
+        "confidence": 0.291589,
+        "inference_mode": "huggingface_trained",
+        "model_id": "YaswanthReddy23/ViT_Sunflower",
+        "expected_model": "YaswanthReddy23/ViT_Sunflower",
+        "model_match": true,
+        "raw_label": "Leaf scars",
+        "display_label": "Leaf scars",
+        "architecture": "ViTForImageClassification",
+        "provider": "huggingface",
+        "rag_grounded": false,
+        "guidance_available": false,
+        "analysis_id": "an_5458f28d95",
+        "total_api_ms": 3382.1,
+        "advisory_summary": "Detected signal for Sunflower / Leaf scars, but verified guidance is unavailable for this exact crop\u2013disease pair in the curated knowledge base."
+      }
+    },
+    "unsupported_millet": {
+      "http_status": 200,
+      "api_status": "model_unavailable",
+      "disease": null,
+      "confidence": null,
+      "inference_mode": "unavailable",
+      "total_api_ms": 20.8
+    },
+    "invalid_and_authz": {
+      "invalid_file_type": {
+        "status_code": 400,
+        "detail": {
+          "detail": "Unsupported image format '.txt'. Please upload JPG, JPEG, PNG, or WebP."
+        }
+      },
+      "oversized": {
+        "status_code": 400,
+        "detail": {
+          "detail": "Image exceeds maximum size limit of 10MB."
+        }
+      },
+      "corrupted": {
+        "status_code": 400,
+        "detail": {
+          "detail": "Image file is empty or invalid."
+        }
+      },
+      "empty": {
+        "status_code": 400,
+        "detail": {
+          "detail": "Image file is empty or invalid."
+        }
+      },
+      "missing_auth": {
+        "status_code": 401
+      },
+      "invalid_auth": {
+        "status_code": 401
+      },
+      "farmer_admin_forbidden": {
+        "status_code": 403
+      },
+      "admin_stats_ok": {
+        "status_code": 200,
+        "keys": [
+          "total_farmers",
+          "total_farms",
+          "total_analyses",
+          "disease_cases",
+          "pest_cases",
+          "high_risk_areas",
+          "pending_expert_reviews",
+          "validation_accuracy_rate",
+          "disease_distribution",
+          "pest_distribution",
+          "regional_cases",
+          "timeline_trends"
+        ]
+      },
+      "admin_cases": {
+        "status_code": 200,
+        "count": 10,
+        "sample_model": {
+          "provider": "huggingface",
+          "model_id": null,
+          "architecture": null,
+          "status": "unavailable"
+        }
+      },
+      "admin_models": {
+        "status_code": 200,
+        "body_preview": "{'models': [{'id': 'gatekeeper_v1', 'task': 'Crop Presence Detection', 'model_name': 'ExG-BioFilter', 'provider': 'Local Edge Heuristic', 'version': '1.2.0', 'threshold': 0.6, 'status': 'ACTIVE', 'inference_mode': 'heuristic', 'supported_classes': ['Vegetative Crop', 'Non-Crop']}, {'id': 'crop_classifier_v2', 'task': 'Crop Identification', 'model_name': 'heuristic-color-hash', 'provider': 'Local H"
+      }
+    },
+    "history_farmer": {
+      "status_code": 200,
+      "count": 10,
+      "grape_record_found": true,
+      "grape_fields": {
+        "crop": "Grape",
+        "disease": "Esca (Black Measles)",
+        "confidence": 0.017107,
+        "raw_label": "Grape___Esca_(Black_Measles)",
+        "display_label": "Esca (Black Measles)",
+        "model": {
+          "provider": "huggingface",
+          "model_id": "kimcomehome/plantvillage-vit-leaf-disease",
+          "architecture": "ViTForImageClassification",
+          "status": "huggingface_trained"
+        },
+        "created_at": "2026-09-10T21:39:00.057320+00:00",
+        "user_id": "usr_demo_farmer",
+        "user_matches": true
+      }
+    },
+    "history_isolation": {
+      "register_status": 200,
+      "email": "e2e_farmer_1789076351@cropshield.ai",
+      "cross_farmer_get": {
+        "status_code": 403,
+        "detail": {
+          "detail": "Not authorized to view this analysis."
+        }
+      },
+      "second_farmer_history_count": 0,
+      "second_sees_grape": false
+    },
+    "rag_tomato": {
+      "http_status": 200,
+      "disease": "Tomato Yellow Leaf Curl Virus",
+      "rag_grounded": false,
+      "guidance_available": false,
+      "sources_count": 0,
+      "pesticide": {
+        "active_ingredient": "Not specified",
+        "chemical_name": "Verified chemical guidance unavailable",
+        "exact_dose_per_liter": "",
+        "withholding_period_days": 0,
+        "application_method": "Consult local agriculture officer / KVK before applying any chemical.",
+        "safety_warnings": [
+          "Do not apply unverified pesticide dosages.",
+          "Expert validation recommended."
+        ],
+        "guidance_available": false,
+        "unavailable_reason": "No sufficiently relevant curated knowledge match for this crop/disease."
+      },
+      "total_api_ms": 752.5
+    }
+  }
+}

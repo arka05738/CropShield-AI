@@ -1,0 +1,15 @@
+{
+  "health": {
+    "mode": "mongodb",
+    "mongo": true,
+    "disease": "HUGGINGFACE_MULTI_MODEL"
+  },
+  "after_restart_get": 200,
+  "history_has": true,
+  "cross_status": 403,
+  "admin_has": true,
+  "warm_wheat_ms": 46333.7,
+  "warm_status": 200,
+  "warm_disease": "Yellow Rust",
+  "warm_mode": "huggingface_trained"
+}

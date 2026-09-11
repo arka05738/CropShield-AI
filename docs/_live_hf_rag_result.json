@@ -1,0 +1,44 @@
+{
+  "outcome": "LIVE HF \u2192 RAG MISS",
+  "rag_class": "miss",
+  "http_status": 200,
+  "api_status": "completed",
+  "elapsed_ms": 2384.2,
+  "health_disease_inference": "HUGGINGFACE_MULTI_MODEL",
+  "health_persistence_mode": "memory",
+  "crop_hint": "Tomato",
+  "crop": "Tomato",
+  "raw_label": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+  "display_label": "Tomato Yellow Leaf Curl Virus",
+  "disease": "Tomato Yellow Leaf Curl Virus",
+  "confidence": 0.065057,
+  "inference_mode": "huggingface_trained",
+  "model_id": "kimcomehome/plantvillage-vit-leaf-disease",
+  "model_provider": "huggingface",
+  "model_architecture": "ViTForImageClassification",
+  "rag_query_key": {
+    "crop": "Tomato",
+    "disease": "Tomato Yellow Leaf Curl Virus"
+  },
+  "rag_grounded": false,
+  "guidance_available": false,
+  "sources_count": 0,
+  "sources": [],
+  "pesticide": {
+    "active_ingredient": "Not specified",
+    "chemical_name": "Verified chemical guidance unavailable",
+    "exact_dose_per_liter": "",
+    "withholding_period_days": 0,
+    "application_method": "Consult local agriculture officer / KVK before applying any chemical.",
+    "safety_warnings": [
+      "Do not apply unverified pesticide dosages.",
+      "Expert validation recommended."
+    ],
+    "guidance_available": false,
+    "unavailable_reason": "No sufficiently relevant curated knowledge match for this crop/disease."
+  },
+  "condition_summary": "Detected signal for Tomato / Tomato Yellow Leaf Curl Virus, but verified guidance is unavailable for this exact crop\u2013disease pair in the curated knowledge base.",
+  "invented_dosage_on_miss": false,
+  "analysis_id": "an_1e37185bd4",
+  "normalization_note": "AdvisoryEngine._match_record uses case-insensitive crop equality and substring disease match (KB disease in predicted name or vice versa). No post-inference label rewriting in the diagnose path."
+}

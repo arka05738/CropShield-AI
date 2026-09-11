@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&display=swap');
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #d9ebe0 0%, transparent 55%),
+    radial-gradient(900px 400px at 100% 0%, #e8efe4 0%, transparent 50%),
+    var(--cs-bg);
+  color: var(--cs-ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--cs-ink);
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--cs-primary);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cs-bg-accent);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cs-border-strong);
+  border-radius: 8px;
+}
+
+.cs-surface {
+  background: var(--cs-surface);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  box-shadow: var(--cs-shadow);
+}
+
+.cs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--cs-touch);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--cs-radius-sm);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.cs-btn:active {
+  transform: scale(0.98);
+}
+.cs-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.cs-btn-primary {
+  background: var(--cs-primary);
+  color: #fff;
+}
+.cs-btn-primary:hover:not(:disabled) {
+  background: var(--cs-primary-hover);
+}
+.cs-btn-secondary {
+  background: var(--cs-primary-soft);
+  color: var(--cs-primary);
+}
+.cs-btn-ghost {
+  background: transparent;
+  color: var(--cs-ink-soft);
+  border: 1px solid var(--cs-border);
+}
+
+.cs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.cs-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cs-ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+.cs-input {
+  width: 100%;
+  min-height: var(--cs-touch);
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--cs-radius-sm);
+  border: 1px solid var(--cs-border);
+  background: var(--cs-surface);
+  color: var(--cs-ink);
+  font-size: 1rem;
+}
+.cs-input:focus {
+  outline: 2px solid var(--cs-primary-mid);
+  outline-offset: 1px;
+}
+
+.cs-hero-panel {
+  background:
+    linear-gradient(145deg, #184f32 0%, #1a5c38 42%, #246b42 100%);
+  color: #f4faf6;
+  border-radius: var(--cs-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.cs-hero-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(0, 0, 0, 0.18), transparent 45%);
+  pointer-events: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

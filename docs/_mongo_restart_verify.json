@@ -1,0 +1,14 @@
+{
+  "health_persistence_mode": "mongodb",
+  "health_mongodb_connected": true,
+  "analysis_id": "an_d8c4e54443",
+  "farmer_get_status": 200,
+  "farmer_get_crop": "Tomato",
+  "farmer_history_has_id": true,
+  "cross_farmer_get_status": 403,
+  "cross_farmer_sees_id": false,
+  "admin_cases_status": 200,
+  "admin_cases_has_id": true,
+  "admin_stats_status": 200,
+  "admin_total_analyses": 4
+}

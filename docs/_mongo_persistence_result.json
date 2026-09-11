@@ -1,0 +1,13 @@
+{
+  "mongo_uri_configured": true,
+  "mongo_db_name_set": true,
+  "host_hint": "localhost",
+  "connected": true,
+  "persistence_mode": "mongodb",
+  "write_ok": true,
+  "read_ok": true,
+  "cleanup_ok": true,
+  "status": "PASS",
+  "error": null,
+  "analysis_id": "an_mongo_verify_20260910215803"
+}

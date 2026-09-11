@@ -1,0 +1,6 @@
+# Temporary host-port override when host :8000 is already allocated.
+# Uses Compose !override so ports are replaced (not appended).
+services:
+  backend:
+    ports: !override
+      - "8005:8000"

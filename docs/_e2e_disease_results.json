@@ -1,0 +1,86 @@
+[
+    {
+        "crop":  "Grape",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Leaf blight (Isariopsis Leaf Spot)",
+        "conf":  0.029565,
+        "model":  "kimcomehome/plantvillage-vit-leaf-disease",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  12127,
+        "id":  "an_b63dbe796e"
+    },
+    {
+        "crop":  "Tomato",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Target Spot",
+        "conf":  0.033451,
+        "model":  "kimcomehome/plantvillage-vit-leaf-disease",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  897,
+        "id":  "an_f6da1a9fea"
+    },
+    {
+        "crop":  "Sugarcane",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Healthy Crop",
+        "conf":  0.065004,
+        "model":  "LishaV01/agriculture-crop-disease-detection",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  429,
+        "id":  "an_50f45ebb2e"
+    },
+    {
+        "crop":  "Rice",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Leaf Blast",
+        "conf":  0.478981,
+        "model":  "wambugu71/crop_leaf_diseases_vit",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  584,
+        "id":  "an_5f2567c65a"
+    },
+    {
+        "crop":  "Wheat",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Healthy Crop",
+        "conf":  0.069035,
+        "model":  "wambugu71/crop_leaf_diseases_vit",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  255,
+        "id":  "an_7d006a0e74"
+    },
+    {
+        "crop":  "Cotton",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Leaf Hopper Jassids",
+        "conf":  0.259024,
+        "model":  "YaswanthReddy23/ViT_Cotton",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  7614,
+        "id":  "an_b1c8c227dc"
+    },
+    {
+        "crop":  "Sunflower",
+        "http":  "200",
+        "status":  "completed",
+        "disease":  "Gray mold",
+        "conf":  0.402501,
+        "model":  "YaswanthReddy23/ViT_Sunflower",
+        "rag":  "MISS",
+        "rec":  "PRESENT",
+        "ms":  5567,
+        "id":  "an_763a390b63"
+    }
+]
