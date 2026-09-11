@@ -46,11 +46,16 @@ class GatekeeperResult(BaseModel):
     message: str
     suggestions: List[str] = []
 
+class CropCandidate(BaseModel):
+    crop: str
+    confidence: float
+
 class CropIdentificationResult(BaseModel):
     crop: str
     confidence: float
-    inference_mode: str = "heuristic"  # heuristic | trained | mock
+    inference_mode: str = "huggingface_vit"  # heuristic | user_hint | huggingface_vit
     model_name: Optional[str] = None
+    top_candidates: List[CropCandidate] = []
 
 class DiseasePrediction(BaseModel):
     disease: Optional[str] = None

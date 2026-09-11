@@ -328,3 +328,25 @@ def test_health_response_has_no_secrets():
     assert "JWT_SECRET" not in data
     assert "GROQ_API_KEY" not in data
     assert "MONGO_URI" not in data
+
+
+def test_identify_crop_from_image():
+    token = _login("demo@cropshield.ai")
+    img = Image.new("RGB", (100, 100), color=(34, 139, 34))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+    response = client.post(
+        "/api/v1/crop/identify",
+        headers=_auth(token),
+        files={"file": ("leaf.jpg", buf, "image/jpeg")},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert "crop" in data and len(data["crop"]) > 0
+    assert 0.0 <= data["confidence"] <= 1.0
+    assert data["inference_mode"] in ("huggingface_vit", "heuristic_uncertain", "default_fallback")
+    assert isinstance(data.get("top_candidates"), list)
+
+

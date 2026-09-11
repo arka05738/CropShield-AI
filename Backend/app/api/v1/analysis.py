@@ -25,6 +25,44 @@ UNAVAILABLE_DEFAULT = (
     "No verified Hugging Face disease model is currently available for this crop."
 )
 
+@router.post("/crop/identify")
+@router.post("/analysis/identify-crop")
+async def identify_crop_from_image(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Automatic crop species identification using Hugging Face Vision Transformers.
+    Runs gatekeeper check, then classifies crop directly from the image.
+    """
+    _, image_bytes = await storage_service.save_image(file)
+
+    gatekeeper_result: GatekeeperResult = gatekeeper.inspect(image_bytes)
+    if not gatekeeper_result.is_crop or gatekeeper_result.confidence < 0.60:
+        return {
+            "status": "rejected",
+            "message": "No crop detected in the uploaded image. Please upload a clear photo of the infected crop leaf or stem.",
+            "confidence": gatekeeper_result.confidence,
+            "suggestions": gatekeeper_result.suggestions or [
+                "Ensure the plant leaf or stem is clearly visible and in focus.",
+                "Avoid capturing unrelated background objects.",
+            ],
+        }
+
+    crop_result = crop_classifier.identify(image_bytes, crop_hint=None)
+    return {
+        "status": "success",
+        "crop": crop_result.crop,
+        "confidence": crop_result.confidence,
+        "inference_mode": crop_result.inference_mode,
+        "model_name": crop_result.model_name,
+        "top_candidates": [
+            {"crop": c.crop, "confidence": c.confidence}
+            for c in (crop_result.top_candidates or [])
+        ],
+    }
+
+
 @router.post("/analysis/run")
 @router.post("/diagnose")
 async def run_crop_analysis(

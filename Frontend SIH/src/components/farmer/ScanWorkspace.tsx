@@ -1,7 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Camera, ImagePlus, Loader2, X } from 'lucide-react';
+import { Camera, ImagePlus, Loader2, Sparkles, X } from 'lucide-react';
 import { SUPPORTED_CROPS } from '../../lib/crops';
 import { friendlyApiError } from '../../lib/crops';
+import { api } from '../../services/api';
+import { CropCandidate } from '../../types';
 
 const STEPS = ['Uploading image...', 'Analyzing crop...', 'Preparing recommendation...'] as const;
 
@@ -24,7 +26,11 @@ export const ScanWorkspace: React.FC<Props> = ({
   progressStep,
   error,
 }) => {
-  const [crop, setCrop] = useState('Rice');
+  const [crop, setCrop] = useState<string>('auto');
+  const [detectedCrop, setDetectedCrop] = useState<string | null>(null);
+  const [detectedConfidence, setDetectedConfidence] = useState<number | null>(null);
+  const [topCandidates, setTopCandidates] = useState<CropCandidate[]>([]);
+  const [isIdentifyingCrop, setIsIdentifyingCrop] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -32,6 +38,24 @@ export const ScanWorkspace: React.FC<Props> = ({
   const cameraRef = useRef<HTMLInputElement>(null);
 
   const stepLabel = useMemo(() => STEPS[Math.min(progressStep, STEPS.length - 1)], [progressStep]);
+
+  const runAutoCropDetection = async (f: File) => {
+    setIsIdentifyingCrop(true);
+    try {
+      const res = await api.identifyCrop(f);
+      if (res.status === 'success' && res.crop) {
+        setDetectedCrop(res.crop);
+        setDetectedConfidence(res.confidence ?? 0.9);
+        setTopCandidates(res.top_candidates || []);
+        // Automatically select the detected crop
+        setCrop(res.crop);
+      }
+    } catch (err) {
+      console.warn('Auto crop detection non-fatal error:', err);
+    } finally {
+      setIsIdentifyingCrop(false);
+    }
+  };
 
   const assignFile = (f: File | null) => {
     if (!f) return;
@@ -46,6 +70,8 @@ export const ScanWorkspace: React.FC<Props> = ({
     setLocalError(null);
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    // Trigger automatic crop identification from the uploaded picture
+    runAutoCropDetection(f);
   };
 
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +84,10 @@ export const ScanWorkspace: React.FC<Props> = ({
     setFile(null);
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
+    setDetectedCrop(null);
+    setDetectedConfidence(null);
+    setTopCandidates([]);
+    setCrop('auto');
   };
 
   return (
@@ -71,30 +101,86 @@ export const ScanWorkspace: React.FC<Props> = ({
         </p>
       </header>
 
+      {/* Crop Selection with Automatic Hugging Face Detection */}
       <section className="cs-surface p-4 sm:p-5 space-y-3">
-        <label className="cs-label" htmlFor="crop-select">
-          Select crop
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="cs-label" htmlFor="crop-select">
+            Crop Species
+          </label>
+          {isIdentifyingCrop && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              AI identifying crop...
+            </span>
+          )}
+        </div>
+
+        {/* AI Auto-Detection Feedback Banner */}
+        {detectedCrop && !isIdentifyingCrop && (
+          <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg border bg-emerald-50/80 border-emerald-200 text-emerald-900 text-xs">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                Auto-identified from photo: <strong className="font-bold text-emerald-950">{detectedCrop}</strong>{' '}
+                {detectedConfidence != null && (
+                  <span className="text-emerald-700">({Math.round(detectedConfidence * 100)}% match)</span>
+                )}
+              </span>
+            </div>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-emerald-100/90 text-emerald-800 rounded border border-emerald-200">
+              Hugging Face ViT
+            </span>
+          </div>
+        )}
+
+        {isIdentifyingCrop && (
+          <div className="flex items-center gap-2 p-2.5 rounded-lg border bg-blue-50/80 border-blue-200 text-blue-900 text-xs animate-pulse">
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>Analyzing leaf morphology with Hugging Face Vision Transformers to select crop...</span>
+          </div>
+        )}
+
         <select
           id="crop-select"
           className="cs-input"
           value={crop}
           onChange={(e) => setCrop(e.target.value)}
-          disabled={isLoading}
+          disabled={isLoading || isIdentifyingCrop}
         >
+          <option value="auto">
+            {detectedCrop ? `✨ Auto-detected: ${detectedCrop}` : '✨ Auto-detect from picture (AI)'}
+          </option>
           {SUPPORTED_CROPS.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {c} {c === detectedCrop ? '✓ (Detected from picture)' : ''}
             </option>
           ))}
         </select>
+
+        {topCandidates.length > 1 && detectedCrop && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px] text-gray-500">
+            <span className="font-medium text-gray-600">Other possibilities:</span>
+            {topCandidates.slice(1, 3).map((cand) => (
+              <button
+                key={cand.crop}
+                type="button"
+                className="underline text-emerald-700 hover:text-emerald-900 cursor-pointer"
+                onClick={() => setCrop(cand.crop)}
+              >
+                {cand.crop} ({Math.round(cand.confidence * 100)}%)
+              </button>
+            ))}
+          </div>
+        )}
+
         <p className="text-xs" style={{ color: 'var(--cs-muted)' }}>
           {mode === 'disease'
-            ? 'Crop hint routes the disease model. Choose the crop you photographed.'
-            : 'Crop hint helps advisory matching. Pest detection uses the verified object detector.'}
+            ? 'The crop is automatically identified from your photo using Hugging Face Vision models, or you can pick manually.'
+            : 'Crop species guides precision agronomic advisories and pest management thresholds.'}
         </p>
       </section>
 
+      {/* Image Upload / Camera Capture */}
       <section className="cs-surface p-4 sm:p-5 space-y-4">
         <p className="cs-label">Upload or capture leaf image</p>
         {!preview ? (
@@ -157,7 +243,7 @@ export const ScanWorkspace: React.FC<Props> = ({
           <div>
             <p className="font-bold">{stepLabel}</p>
             <p className="text-xs mt-1" style={{ color: 'var(--cs-muted)' }}>
-              Honest status — not a fake percentage.
+              Honest status — running Hugging Face Vision Transformer models.
             </p>
           </div>
         </div>
@@ -166,11 +252,13 @@ export const ScanWorkspace: React.FC<Props> = ({
       <button
         type="button"
         className="cs-btn cs-btn-primary w-full"
-        disabled={!file || isLoading}
+        disabled={!file || isLoading || isIdentifyingCrop}
         onClick={async () => {
           if (!file) return;
           try {
-            await onSubmit(file, crop);
+            // If crop is still 'auto', pass detectedCrop or empty (backend classifies directly)
+            const effectiveCrop = crop === 'auto' ? (detectedCrop || '') : crop;
+            await onSubmit(file, effectiveCrop);
           } catch (err) {
             setLocalError(friendlyApiError(err));
           }

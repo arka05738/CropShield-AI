@@ -1,7 +1,7 @@
 import { 
   AnalysisResponse, HotspotGeoJSON, AdminAnalytics, 
   ExpertValidationCase, KnowledgeDocument, RegisteredModel, 
-  WeatherMetrics, User, PestDetectResponse
+  WeatherMetrics, User, PestDetectResponse, CropIdentifyResponse
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -77,6 +77,20 @@ export const api = {
   },
 
   // Diagnosis / Analysis Pipeline
+  async identifyCrop(file: File): Promise<CropIdentifyResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/crop/identify`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: formData,
+    });
+    if (!res.ok) {
+      throw new Error(await readError(res, 'Crop auto-identification failed'));
+    }
+    return res.json();
+  },
+
   async runDiagnosis(formData: FormData): Promise<AnalysisResponse | { status: 'rejected'; message: string; suggestions?: string[] }> {
     const res = await fetch(`${API_BASE}/diagnose`, {
       method: 'POST',

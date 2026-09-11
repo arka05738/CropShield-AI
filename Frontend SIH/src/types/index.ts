@@ -17,6 +17,22 @@ export interface GatekeeperResult {
   suggestions?: string[];
 }
 
+export interface CropCandidate {
+  crop: string;
+  confidence: number;
+}
+
+export interface CropIdentifyResponse {
+  status: 'success' | 'rejected';
+  crop?: string;
+  confidence?: number;
+  inference_mode?: string;
+  model_name?: string;
+  top_candidates?: CropCandidate[];
+  message?: string;
+  suggestions?: string[];
+}
+
 export interface DiseasePrediction {
   disease: string | null;
   pathogen_type: 'Fungal' | 'Bacterial' | 'Viral' | 'Physiological' | 'Healthy' | string;
