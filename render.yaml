@@ -10,7 +10,7 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
       - key: CORS_ORIGINS
         value: https://cropshield-farmer.vercel.app,https://crop-shield-ai-5v3z.vercel.app,http://localhost:5173,http://localhost:5174
       - key: MONGO_URI
