@@ -139,7 +139,32 @@ class HuggingFaceDiseaseClassifier:
             except Exception as e:
                 logger.warning("HF Router API disease inference error for %s: %s", spec.model_id, e)
 
-        # 2. In low-memory production environments (like Render Free Tier 512MB),
+        # 2. Lightweight MobileNetV3 (5.9MB, ~20MB RAM) for Solanaceae (Tomato, Potato, Pepper)
+        if crop_name in ("Tomato", "Potato", "Pepper"):
+            try:
+                from app.ml.lightweight_classifier import lightweight_classifier
+                mob_res = lightweight_classifier.predict(image_bytes, crop_filter=crop_name)
+                if mob_res and mob_res.get("confidence", 0.0) >= 0.30:
+                    return HFPredictionResult(
+                        status="success",
+                        crop=crop_name,
+                        raw_label=mob_res["raw_label"],
+                        display_label=mob_res["display_label"],
+                        confidence=mob_res["confidence"],
+                        pathogen_type=mob_res["pathogen_type"],
+                        model_id="imaflower/plantvillage-mobilenetv3",
+                        architecture="MobileNetV3-Small",
+                        provider="local_mobilenetv3",
+                        message=None,
+                        alternatives=mob_res["alternatives"],
+                        id2label={},
+                        load_seconds=0.0,
+                        infer_seconds=0.02,
+                    )
+            except Exception as e:
+                logger.warning("MobileNetV3 disease diagnosis error: %s", e)
+
+        # 3. In low-memory production environments (like Render Free Tier 512MB),
         # NEVER load full 350MB+ PyTorch weights in-process to prevent fatal Linux kernel OOM kills.
         if settings.ENVIRONMENT.lower() == "production":
             logger.warning("HF Router API unavailable; skipping local PyTorch loading on Render 512MB RAM cap")

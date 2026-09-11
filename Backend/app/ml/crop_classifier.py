@@ -100,14 +100,31 @@ class CropClassifier:
             except Exception as e:
                 logger.warning("HF Serverless API crop identify failed, falling back: %s", e)
 
-        # 2. Secondary: If not in low-memory production, attempt local transformers
+        # 2. Lightweight MobileNetV3 (5.9MB, ~20MB RAM, instant on CPU)
+        try:
+            from app.ml.lightweight_classifier import lightweight_classifier
+            mob_res = lightweight_classifier.predict(image_bytes)
+            if mob_res and mob_res.get("confidence", 0.0) >= 0.50:
+                detected_crop = mob_res["crop"]
+                conf = mob_res["confidence"]
+                return CropIdentificationResult(
+                    crop=detected_crop,
+                    confidence=round(float(conf), 3),
+                    inference_mode="mobilenetv3_plantvillage",
+                    model_name="imaflower/plantvillage-mobilenetv3",
+                    top_candidates=[CropCandidate(crop=detected_crop, confidence=round(float(conf), 3))],
+                )
+        except Exception as e:
+            logger.warning("MobileNetV3 crop identify error: %s", e)
+
+        # 3. Secondary: If not in low-memory production, attempt local transformers
         if settings.USE_HF_DISEASE_MODEL and settings.ENVIRONMENT.lower() != "production":
             try:
                 return self._identify_via_hf(image_bytes)
             except Exception as e:
                 logger.warning("Local HF crop classifier error, falling back to heuristic: %s", e)
 
-        # 3. Resilient fallback: fast heuristic (instant, safe, zero-crash guarantee)
+        # 4. Resilient fallback: fast heuristic (instant, safe, zero-crash guarantee)
         return self._heuristic_fallback(image_bytes)
 
     def _identify_via_hf_api(self, image_bytes: bytes) -> Optional[CropIdentificationResult]:
