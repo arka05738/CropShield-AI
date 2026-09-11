@@ -12,6 +12,14 @@ COPY Backend/requirements.txt ./requirements.txt
 # Single reproducible install: torch + torchvision + transformers from requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-cache primary Hugging Face ViT model weights into image layer during build
+# This prevents runtime download timeouts (>60s) on Render free tier
+RUN python -c "from transformers import AutoConfig, AutoImageProcessor, AutoModelForImageClassification; \
+    m='kimcomehome/plantvillage-vit-leaf-disease'; \
+    AutoConfig.from_pretrained(m); \
+    AutoImageProcessor.from_pretrained(m); \
+    AutoModelForImageClassification.from_pretrained(m)"
+
 COPY Backend/ ./Backend/
 COPY knowledge-base/ ./knowledge-base/
 
