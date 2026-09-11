@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { AnalysisResponse, WeatherMetrics, User } from '../../types';
 import { SupportedLanguage, t } from '../../i18n/translations';
+import { handleImageError } from '../../lib/imageFallback';
 
 interface FarmerDashboardProps {
   user: User | null;
@@ -274,6 +275,7 @@ export const FarmerDashboard: React.FC<FarmerDashboardProps> = ({
                     <img
                       src={an.image_url}
                       alt={an.crop}
+                      onError={handleImageError}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/80 text-[10px] font-bold text-white">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnalysisResponse, PestDetectResponse } from '../../types';
 import { useFarmerApp } from '../../context/FarmerAppContext';
 import { SUPPORTED_CROPS, formatAiConfidence } from '../../lib/crops';
+import { handleImageError } from '../../lib/imageFallback';
 
 type Tab = 'all' | 'disease' | 'pest';
 
@@ -142,6 +143,7 @@ export const HistoryHub: React.FC = () => {
                 <img
                   src={item.image}
                   alt=""
+                  onError={handleImageError}
                   className="w-16 h-16 rounded-lg object-cover bg-[var(--cs-bg-accent)] shrink-0"
                 />
                 <div className="min-w-0 flex-1">

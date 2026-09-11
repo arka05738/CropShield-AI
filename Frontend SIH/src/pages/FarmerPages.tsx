@@ -12,6 +12,7 @@ import { confidenceBand, formatAiConfidence } from '../lib/crops';
 import { LogOut, Languages } from 'lucide-react';
 import type { FarmerOutletContext } from './FarmerLayout';
 import { SupportedLanguage } from '../i18n/translations';
+import { handleImageError } from '../lib/imageFallback';
 
 export const DashboardPage: React.FC = () => <HomePage />;
 
@@ -158,6 +159,7 @@ function DiseaseResultHeader({
         <img
           src={analysis.image_url}
           alt={`Scanned ${analysis.crop} leaf`}
+          onError={handleImageError}
           className="w-full sm:w-44 h-44 object-cover rounded-[12px] bg-[var(--cs-bg-accent)]"
         />
         <div className="space-y-2 flex-1">

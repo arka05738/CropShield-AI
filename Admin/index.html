@@ -5,6 +5,35 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CropShield Admin</title>
+    <script>
+      (function() {
+        function isExtensionNoise(msg, filename) {
+          var s = (msg || '') + ' ' + (filename || '');
+          return (
+            s.indexOf('startTime') !== -1 ||
+            s.indexOf('message channel closed') !== -1 ||
+            s.indexOf('asynchronous response') !== -1 ||
+            s.indexOf('chrome-extension://') !== -1 ||
+            s.indexOf('moz-extension://') !== -1
+          );
+        }
+        window.addEventListener('error', function(e) {
+          if (isExtensionNoise(e.message, e.filename)) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return true;
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(e) {
+          var reason = e.reason ? (e.reason.message || String(e.reason)) : '';
+          if (isExtensionNoise(reason, '')) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

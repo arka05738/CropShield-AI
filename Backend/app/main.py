@@ -3,8 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, FileResponse, Response
 from app.core.config import settings
 from app.core.startup_checks import validate_runtime_settings
 from app.core.database import connect_to_mongo, close_mongo_connection, persistence_mode
@@ -65,7 +64,44 @@ app.add_middleware(
 )
 
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+
+FALLBACK_PLACEHOLDER_PATH = os.path.join(os.path.dirname(__file__), "assets", "placeholder_leaf.jpg")
+FALLBACK_LEAF_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" rx="24" fill="#0f172a"/>
+  <circle cx="200" cy="200" r="110" fill="#064e3b"/>
+  <circle cx="200" cy="200" r="85" fill="#10b981"/>
+  <path d="M200 120 C270 170 280 240 200 290 C120 240 130 170 200 120 Z" fill="#059669"/>
+  <path d="M200 130 L200 285" stroke="#d1fae5" stroke-width="4" stroke-linecap="round"/>
+  <path d="M200 180 L240 160 M200 180 L160 160 M200 220 L250 200 M200 220 L150 200" stroke="#d1fae5" stroke-width="2" stroke-linecap="round"/>
+  <text x="200" y="340" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#94a3b8" text-anchor="middle">CropShield AI Scan</text>
+</svg>"""
+
+
+@app.get("/uploads/{file_path:path}")
+async def serve_upload(file_path: str):
+    """Serve uploaded user images from disk, or return a clean placeholder if disk is wiped on container redeploy."""
+    safe_name = os.path.basename(file_path)
+    disk_path = os.path.join(settings.UPLOAD_DIR, safe_name)
+    if os.path.isfile(disk_path):
+        return FileResponse(disk_path)
+
+    if os.path.isfile(FALLBACK_PLACEHOLDER_PATH):
+        return FileResponse(
+            FALLBACK_PLACEHOLDER_PATH,
+            media_type="image/jpeg",
+            headers={
+                "Cache-Control": "public, max-age=86400",
+                "X-CropShield-Fallback": "true",
+            },
+        )
+    return Response(
+        content=FALLBACK_LEAF_SVG,
+        media_type="image/svg+xml",
+        headers={
+            "Cache-Control": "public, max-age=86400",
+            "X-CropShield-Fallback": "true",
+        },
+    )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(api_router)

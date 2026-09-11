@@ -9,6 +9,7 @@ import {
   PageHeader,
 } from '../components/ui/States';
 import { farmerLabel, formatConfidence, formatDate } from '../lib/cases';
+import { handleImageError } from '../lib/imageFallback';
 
 function assetUrl(path?: string | null): string | null {
   if (!path) return null;
@@ -127,7 +128,7 @@ export function CaseDetailPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="panel overflow-hidden rounded-xl">
             {img ? (
-              <img src={img} alt={`Disease case ${disease.id}`} className="max-h-[420px] w-full object-contain bg-stone-100" />
+              <img src={img} alt={`Disease case ${disease.id}`} onError={handleImageError} className="max-h-[420px] w-full object-contain bg-stone-100" />
             ) : (
               <EmptyState title="No image available" />
             )}
@@ -172,6 +173,7 @@ export function CaseDetailPage() {
                 <img
                   src={img}
                   alt={`Pest case ${pest.id}`}
+                  onError={handleImageError}
                   className="max-h-[420px] w-full object-contain"
                 />
                 {pestBoxes.map((box, i) => (

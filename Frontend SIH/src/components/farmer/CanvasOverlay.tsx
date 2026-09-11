@@ -30,6 +30,11 @@ export const CanvasOverlay: React.FC<CanvasOverlayProps> = ({
       setImageLoaded(true);
       drawCanvas(null);
     };
+    img.onerror = () => {
+      if (img.src !== '/placeholder-leaf.svg' && !img.src.endsWith('/placeholder-leaf.svg')) {
+        img.src = '/placeholder-leaf.svg';
+      }
+    };
   }, [imageUrl, pests]);
 
   const drawCanvas = (activePest: PestDetectionItem | null) => {

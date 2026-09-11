@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Leaf, Bug, ChevronRight, Clock } from 'lucide-react';
 import { useFarmerApp } from '../../context/FarmerAppContext';
 import { SUPPORTED_CROPS, formatAiConfidence } from '../../lib/crops';
+import { handleImageError } from '../../lib/imageFallback';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ export const HomePage: React.FC = () => {
                 >
                   <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-[var(--cs-bg-accent)]">
                     {item.image ? (
-                      <img src={item.image} alt="" className="w-full h-full object-cover" />
+                      <img src={item.image} alt="" onError={handleImageError} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[var(--cs-muted)]">
                         <Clock className="w-5 h-5" />

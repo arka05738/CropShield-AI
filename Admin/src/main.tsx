@@ -6,26 +6,33 @@ import App from './App.tsx';
 
 // Suppress noisy third-party browser extension and PerformanceObserver errors
 window.addEventListener('error', (event) => {
+  const msg = String(event.message || '');
+  const file = String(event.filename || '');
   if (
-    event.message?.includes('startTime') ||
-    event.message?.includes('message channel closed') ||
-    event.filename?.includes('chrome-extension://') ||
-    !event.filename
+    msg.includes('startTime') ||
+    msg.includes('message channel closed') ||
+    msg.includes('asynchronous response') ||
+    file.includes('chrome-extension://') ||
+    file.includes('moz-extension://') ||
+    !file
   ) {
-    if (event.message?.includes('startTime')) {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-    }
-  }
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-  const msg = String(event.reason?.message || event.reason || '');
-  if (msg.includes('message channel closed') || msg.includes('asynchronous response')) {
     event.stopImmediatePropagation();
     event.preventDefault();
   }
-});
+}, true);
+
+window.addEventListener('unhandledrejection', (event) => {
+  const msg = String(event.reason?.message || event.reason || '');
+  if (
+    msg.includes('startTime') ||
+    msg.includes('message channel closed') ||
+    msg.includes('asynchronous response') ||
+    msg.includes('chrome-extension://')
+  ) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+  }
+}, true);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

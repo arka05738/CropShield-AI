@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { History, Filter, ArrowRight } from 'lucide-react';
 import { AnalysisResponse } from '../../types';
 import { SupportedLanguage, t } from '../../i18n/translations';
+import { handleImageError } from '../../lib/imageFallback';
 
 interface FarmerHistoryProps {
   analyses: AnalysisResponse[];
@@ -99,6 +100,7 @@ export const FarmerHistory: React.FC<FarmerHistoryProps> = ({
                 <img
                   src={item.image_url}
                   alt={item.crop}
+                  onError={handleImageError}
                   className="w-16 h-16 rounded-xl object-cover border border-slate-800 group-hover:border-emerald-500/40 shrink-0"
                 />
 
