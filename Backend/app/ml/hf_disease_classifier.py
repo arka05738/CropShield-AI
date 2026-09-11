@@ -150,12 +150,12 @@ class HuggingFaceDiseaseClassifier:
             image = bytes_to_rgb_pil(image_bytes)
             inputs = processor(images=image, return_tensors="pt")
             device = next(model.parameters()).device
-            inputs = {k: v.to(device) for k, v in inputs.items()}
+            inputs = {k: v.to(device=device, dtype=model.dtype) if v.is_floating_point() else v.to(device) for k, v in inputs.items()}
 
             t0 = time.time()
-            with torch.no_grad():
+            with torch.inference_mode():
                 logits = model(**inputs).logits[0]
-                probs = torch.softmax(logits, dim=-1)
+                probs = torch.softmax(logits.float(), dim=-1)
             infer_s = round(time.time() - t0, 4)
 
             ranked = _rank_predictions(probs, id2label, spec.crop_filter_tokens)

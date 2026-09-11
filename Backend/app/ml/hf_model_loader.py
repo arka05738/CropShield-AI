@@ -67,6 +67,7 @@ def load_transformers_classifier(model_id: str) -> Tuple[Any, Any, Dict[str, str
             architecture = (cfg.architectures or [getattr(cfg, "model_type", "unknown")])[0]
             id2label = {str(k): str(v) for k, v in dict(getattr(cfg, "id2label", {}) or {}).items()}
 
+            kwargs["torch_dtype"] = torch.bfloat16
             processor = AutoImageProcessor.from_pretrained(model_id, **kwargs)
             model = AutoModelForImageClassification.from_pretrained(model_id, **kwargs)
             model.eval()

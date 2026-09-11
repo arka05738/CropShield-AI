@@ -114,9 +114,10 @@ class CropClassifier:
         try:
             p_pv, m_pv, id2l_pv, _, _ = load_transformers_classifier(pv_id)
             models_used.append(pv_id)
-            inp_pv = p_pv(images=image, return_tensors="pt").to(device)
-            with torch.no_grad():
-                probs_pv = torch.softmax(m_pv(**inp_pv).logits[0], dim=-1)
+            inp_pv = p_pv(images=image, return_tensors="pt")
+            inp_pv = {k: v.to(device=device, dtype=m_pv.dtype) if v.is_floating_point() else v.to(device) for k, v in inp_pv.items()}
+            with torch.inference_mode():
+                probs_pv = torch.softmax(m_pv(**inp_pv).logits[0].float(), dim=-1)
 
             for idx, p in enumerate(probs_pv.tolist()):
                 lbl = id2l_pv.get(str(idx), "")
@@ -133,9 +134,10 @@ class CropClassifier:
             try:
                 p_rw, m_rw, id2l_rw, _, _ = load_transformers_classifier(rice_wheat_id)
                 models_used.append(rice_wheat_id)
-                inp_rw = p_rw(images=image, return_tensors="pt").to(device)
-                with torch.no_grad():
-                    probs_rw = torch.softmax(m_rw(**inp_rw).logits[0], dim=-1)
+                inp_rw = p_rw(images=image, return_tensors="pt")
+                inp_rw = {k: v.to(device=device, dtype=m_rw.dtype) if v.is_floating_point() else v.to(device) for k, v in inp_rw.items()}
+                with torch.inference_mode():
+                    probs_rw = torch.softmax(m_rw(**inp_rw).logits[0].float(), dim=-1)
 
                 rice_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "rice" in l.lower())
                 wheat_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "wheat" in l.lower())
@@ -157,9 +159,10 @@ class CropClassifier:
             try:
                 p_ct, m_ct, _, _, _ = load_transformers_classifier(cotton_id)
                 models_used.append(cotton_id)
-                inp_ct = p_ct(images=image, return_tensors="pt").to(device)
-                with torch.no_grad():
-                    probs_ct = torch.softmax(m_ct(**inp_ct).logits[0], dim=-1)
+                inp_ct = p_ct(images=image, return_tensors="pt")
+                inp_ct = {k: v.to(device=device, dtype=m_ct.dtype) if v.is_floating_point() else v.to(device) for k, v in inp_ct.items()}
+                with torch.inference_mode():
+                    probs_ct = torch.softmax(m_ct(**inp_ct).logits[0].float(), dim=-1)
                 cotton_conf = float(torch.max(probs_ct).item())
                 if cotton_conf > top_curr_conf and cotton_conf > 0.75:
                     crop_scores["Cotton"] = cotton_conf
