@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
+from app.core.config import settings
 from app.ml.hf_crop_registry import (
     is_explicitly_unsupported,
     normalize_crop,
@@ -129,6 +130,30 @@ class HuggingFaceDiseaseClassifier:
                 message=UNAVAILABLE_MESSAGE,
             )
 
+        # 1. Primary: Hugging Face Serverless Inference Router API (0 MB RAM, eliminates Render 512MB OOM)
+        if getattr(settings, "USE_HF_SERVERLESS_API", True):
+            try:
+                res = self._predict_via_hf_api(image_bytes, crop_name, spec)
+                if res and res.status == "success":
+                    return res
+            except Exception as e:
+                logger.warning("HF Router API disease inference error for %s: %s", spec.model_id, e)
+
+        # 2. In low-memory production environments (like Render Free Tier 512MB),
+        # NEVER load full 350MB+ PyTorch weights in-process to prevent fatal Linux kernel OOM kills.
+        if settings.ENVIRONMENT.lower() == "production":
+            logger.warning("HF Router API unavailable; skipping local PyTorch loading on Render 512MB RAM cap")
+            return HFPredictionResult(
+                status="model_unavailable",
+                crop=crop_name,
+                raw_label=None,
+                display_label=None,
+                confidence=None,
+                model_id=spec.model_id,
+                architecture=spec.architecture,
+                message=f"Hugging Face Router API temporarily unavailable for '{spec.model_id}'. Please configure HF_TOKEN.",
+            )
+
         try:
             processor, model, id2label, architecture, load_s = load_transformers_classifier(
                 spec.model_id
@@ -214,6 +239,60 @@ class HuggingFaceDiseaseClassifier:
                 architecture=spec.architecture,
                 message=f"Inference failed for '{spec.model_id}': {e}",
             )
+
+    def _predict_via_hf_api(
+        self, image_bytes: bytes, crop_name: str, spec: HFModelSpec
+    ) -> Optional[HFPredictionResult]:
+        from app.ml.hf_api_client import hf_api_client
+
+        t0 = time.time()
+        predictions = hf_api_client.query_classification(spec.model_id, image_bytes)
+        if not predictions:
+            return None
+
+        infer_s = round(time.time() - t0, 4)
+
+        # Filter by crop tokens if multi-crop model, else keep all
+        ranked: List[Tuple[str, float]] = []
+        for item in predictions:
+            lab = str(item.get("label", ""))
+            sc = float(item.get("score", 0.0))
+            if not spec.crop_filter_tokens or _label_matches_crop(lab, spec.crop_filter_tokens):
+                ranked.append((lab, sc))
+
+        # Fallback to all items if filtered list was empty
+        if not ranked:
+            ranked = [(str(item.get("label", "")), float(item.get("score", 0.0))) for item in predictions]
+
+        if not ranked:
+            return None
+
+        ranked.sort(key=lambda x: x[1], reverse=True)
+        raw_label, confidence = ranked[0]
+        if raw_label.lower() == "invalid" and len(ranked) > 1:
+            raw_label, confidence = ranked[1]
+
+        alts = [
+            {"raw_label": lab, "display_label": _display_from_raw(lab), "confidence": round(sc, 6)}
+            for lab, sc in ranked[1:4]
+        ]
+
+        return HFPredictionResult(
+            status="success",
+            crop=crop_name,
+            raw_label=raw_label,
+            display_label=_display_from_raw(raw_label),
+            confidence=round(float(confidence), 6),
+            pathogen_type=_guess_pathogen(raw_label),
+            model_id=spec.model_id,
+            architecture=spec.architecture,
+            provider="huggingface_router_api",
+            message=None,
+            alternatives=alts,
+            id2label={},
+            load_seconds=0.0,
+            infer_seconds=infer_s,
+        )
 
 
 hf_disease_classifier = HuggingFaceDiseaseClassifier()

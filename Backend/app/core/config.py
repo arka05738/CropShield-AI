@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=True, extra="allow")
 
     PROJECT_NAME: str = "CropShield AI"
-    VERSION: str = "1.1.2"
+    VERSION: str = "1.2.0"
     API_V1_STR: str = "/api/v1"
 
     JWT_SECRET: str = ""
@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
     HF_TOKEN: str = ""
+    USE_HF_SERVERLESS_API: bool = True
+    HF_INFERENCE_ROUTER_URL: str = "https://router.huggingface.co/hf-inference/models"
     USE_HF_DISEASE_MODEL: bool = True
     # Legacy alias — same as HF_MODEL_PLANTVILLAGE
     HF_DISEASE_MODEL_ID: str = "kimcomehome/plantvillage-vit-leaf-disease"

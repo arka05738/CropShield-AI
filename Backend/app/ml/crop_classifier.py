@@ -91,13 +91,59 @@ class CropClassifier:
                     top_candidates=[CropCandidate(crop=hint, confidence=0.99)],
                 )
 
-        if settings.USE_HF_DISEASE_MODEL:
+        # 1. Primary: Hugging Face Serverless Inference Router API (0 MB RAM on Render)
+        if getattr(settings, "USE_HF_SERVERLESS_API", True):
+            try:
+                res = self._identify_via_hf_api(image_bytes)
+                if res:
+                    return res
+            except Exception as e:
+                logger.warning("HF Serverless API crop identify failed, falling back: %s", e)
+
+        # 2. Secondary: If not in low-memory production, attempt local transformers
+        if settings.USE_HF_DISEASE_MODEL and settings.ENVIRONMENT.lower() != "production":
             try:
                 return self._identify_via_hf(image_bytes)
             except Exception as e:
-                logger.warning("HF crop classifier error, falling back to heuristic: %s", e)
+                logger.warning("Local HF crop classifier error, falling back to heuristic: %s", e)
 
+        # 3. Resilient fallback: fast heuristic (instant, safe, zero-crash guarantee)
         return self._heuristic_fallback(image_bytes)
+
+    def _identify_via_hf_api(self, image_bytes: bytes) -> Optional[CropIdentificationResult]:
+        from app.ml.hf_api_client import hf_api_client
+
+        pv_id = getattr(settings, "HF_MODEL_PLANTVILLAGE", PRIMARY_HF_MODEL) or PRIMARY_HF_MODEL
+        predictions = hf_api_client.query_classification(pv_id, image_bytes)
+        if not predictions:
+            return None
+
+        crop_scores: Dict[str, float] = {}
+        for item in predictions:
+            raw_label = item.get("label", "")
+            score = float(item.get("score", 0.0))
+            c_name = _extract_crop_from_label(raw_label)
+            if c_name:
+                crop_scores[c_name] = max(crop_scores.get(c_name, 0.0), score)
+
+        if not crop_scores:
+            return None
+
+        sorted_crops = sorted(crop_scores.items(), key=lambda x: x[1], reverse=True)
+        top_crop, top_conf = sorted_crops[0]
+
+        top_candidates = [
+            CropCandidate(crop=c, confidence=round(float(s), 3))
+            for c, s in sorted_crops[:3]
+        ]
+
+        return CropIdentificationResult(
+            crop=top_crop,
+            confidence=round(float(top_conf), 3),
+            inference_mode="huggingface_router_api",
+            model_name=pv_id,
+            top_candidates=top_candidates,
+        )
 
     def _identify_via_hf(self, image_bytes: bytes) -> CropIdentificationResult:
         import torch
