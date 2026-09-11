@@ -126,27 +126,29 @@ class CropClassifier:
         except Exception as err:
             logger.warning("PlantVillage model inference error: %s", err)
 
-        # 2. Specialist Cereal model evaluation for Rice & Wheat
-        rice_wheat_id = getattr(settings, "HF_MODEL_RICE", RICE_WHEAT_MODEL) or RICE_WHEAT_MODEL
-        try:
-            p_rw, m_rw, id2l_rw, _, _ = load_transformers_classifier(rice_wheat_id)
-            models_used.append(rice_wheat_id)
-            inp_rw = p_rw(images=image, return_tensors="pt").to(device)
-            with torch.no_grad():
-                probs_rw = torch.softmax(m_rw(**inp_rw).logits[0], dim=-1)
+        # 2. Specialist Cereal model evaluation for Rice & Wheat only if primary model confidence is low (< 0.70)
+        top_pv_conf = max(crop_scores.values()) if crop_scores else 0.0
+        if top_pv_conf < 0.70:
+            rice_wheat_id = getattr(settings, "HF_MODEL_RICE", RICE_WHEAT_MODEL) or RICE_WHEAT_MODEL
+            try:
+                p_rw, m_rw, id2l_rw, _, _ = load_transformers_classifier(rice_wheat_id)
+                models_used.append(rice_wheat_id)
+                inp_rw = p_rw(images=image, return_tensors="pt").to(device)
+                with torch.no_grad():
+                    probs_rw = torch.softmax(m_rw(**inp_rw).logits[0], dim=-1)
 
-            rice_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "rice" in l.lower())
-            wheat_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "wheat" in l.lower())
+                rice_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "rice" in l.lower())
+                wheat_prob = sum(float(probs_rw[int(i)].item()) for i, l in id2l_rw.items() if "wheat" in l.lower())
 
-            if rice_prob > 0.70:
-                crop_scores["Rice"] = rice_prob
-                # If Rice was detected with high confidence by the cereal model, suppress false maize/potato logits
-                if rice_prob > 0.85:
-                    crop_scores.pop("Maize", None)
-            if wheat_prob > 0.70:
-                crop_scores["Wheat"] = wheat_prob
-        except Exception as err:
-            logger.warning("Rice/Wheat model inference error: %s", err)
+                if rice_prob > 0.70:
+                    crop_scores["Rice"] = rice_prob
+                    # If Rice was detected with high confidence by the cereal model, suppress false maize/potato logits
+                    if rice_prob > 0.85:
+                        crop_scores.pop("Maize", None)
+                if wheat_prob > 0.70:
+                    crop_scores["Wheat"] = wheat_prob
+            except Exception as err:
+                logger.warning("Rice/Wheat model inference error: %s", err)
 
         # 3. Specialist Cotton model evaluation if PlantVillage confidence is low (< 0.70)
         top_curr_conf = max(crop_scores.values()) if crop_scores else 0.0

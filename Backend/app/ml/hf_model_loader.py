@@ -43,8 +43,18 @@ def load_transformers_classifier(model_id: str) -> Tuple[Any, Any, Dict[str, str
             return cached
 
         try:
+            import gc
             import torch
             from transformers import AutoConfig, AutoImageProcessor, AutoModelForImageClassification
+
+            # Evict existing model from cache to stay strictly within 512MB RAM on Render
+            while _CACHE:
+                old_k, old_v = _CACHE.popitem()
+                try:
+                    del old_v
+                except Exception:
+                    pass
+            gc.collect()
 
             token = (settings.HF_TOKEN or "").strip() or None
             kwargs: Dict[str, Any] = {}
