@@ -4,7 +4,14 @@ import {
   WeatherMetrics, User, PestDetectResponse, CropIdentifyResponse
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+function getApiBase(): string {
+  const configured = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '');
+  if (!configured) return '/api/v1';
+  if (configured.endsWith('/api/v1')) return configured;
+  return `${configured}/api/v1`;
+}
+
+const API_BASE = getApiBase();
 
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('cropshield_token');
