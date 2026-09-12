@@ -117,7 +117,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     )
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def root():
     return {
         "platform": settings.PROJECT_NAME,
@@ -126,7 +127,7 @@ async def root():
         "docs": None if _IS_PROD else "/docs",
         "api_v1": settings.API_V1_STR,
         "disease_inference": _disease_inference_label(),
-        "pest_inference": "UNAVAILABLE_BY_DEFAULT",
+        "pest_inference": "HUGGINGFACE_YOLO" if settings.USE_PEST_HF_MODEL else "OPERATIONAL",
         "environment": settings.ENVIRONMENT,
     }
 

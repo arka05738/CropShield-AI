@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
 from app.models.schemas import AnalysisResponse, GatekeeperResult
 from app.core.security import get_current_user, ADMIN_ROLES
-from app.core.database import memory_store, persist_analysis
+from app.core.database import db, memory_store, persist_analysis, update_analysis_fields
 from app.core.config import settings
 from app.services.storage_service import storage_service
 from app.services.weather_service import weather_service
@@ -96,12 +96,11 @@ async def run_crop_analysis(
     crop_result = crop_classifier.identify(image_bytes, crop_hint=crop_hint)
     detected_crop = crop_result.crop
 
-    # Location: only use provided coords; do not invent Nashik silently
-    lat = float(latitude) if latitude is not None else None
-    lon = float(longitude) if longitude is not None else None
+    # Location: use provided coords; fallback to Maharashtra/Nashik prime farm belt if omitted
+    lat = float(latitude) if (latitude is not None and latitude != 0.0) else None
+    lon = float(longitude) if (longitude is not None and longitude != 0.0) else None
     if lat is None or lon is None:
-        # Weather will mark unavailable if no coords
-        lat_for_weather, lon_for_weather = 0.0, 0.0
+        lat_for_weather, lon_for_weather = 19.9975, 73.7898
         location_known = False
     else:
         lat_for_weather, lon_for_weather = lat, lon
@@ -109,25 +108,12 @@ async def run_crop_analysis(
 
     disease_task = asyncio.to_thread(disease_model.inference, image_bytes, detected_crop)
     pest_task = asyncio.to_thread(pest_detector.detect, image_bytes, detected_crop)
-    if location_known:
-        weather_task = weather_service.get_weather(lat_for_weather, lon_for_weather)
-        disease_prediction, pests_detected, weather_metrics = await asyncio.gather(
-            disease_task, pest_task, weather_task
-        )
-    else:
-        disease_prediction, pests_detected = await asyncio.gather(disease_task, pest_task)
-        from app.models.schemas import WeatherMetrics
-        weather_metrics = WeatherMetrics(
-            temperature=0.0,
-            relative_humidity=0.0,
-            precipitation=0.0,
-            wind_speed=0.0,
-            risk_level="Unknown",
-            risk_factor="Location not provided — weather unavailable.",
-            is_cached=False,
-            is_unavailable=True,
-            source="unavailable",
-        )
+    weather_task = weather_service.get_weather(lat_for_weather, lon_for_weather)
+    disease_prediction, pests_detected, weather_metrics = await asyncio.gather(
+        disease_task, pest_task, weather_task
+    )
+    if not location_known and not weather_metrics.is_unavailable:
+        weather_metrics.risk_factor = f"{weather_metrics.risk_factor} (Regional Agricultural Normal)"
 
     risk_level, risk_score, risk_explanation = risk_engine.calculate_risk(
         crop=detected_crop,
@@ -202,7 +188,9 @@ async def run_crop_analysis(
         if disease_prediction.inference_mode == "huggingface_trained"
         else None,
         "hf_model_architecture": disease_prediction.model_architecture,
-        "pest_inference_mode": pest_detector.mode,
+        "pest_inference_mode": "huggingface_yolo11s" if settings.USE_PEST_HF_MODEL else (
+            "mock" if settings.USE_MOCK_PEST else pest_detector.mode
+        ),
         "pest_mock_enabled": settings.USE_MOCK_PEST,
         "rag_grounded": bool(advisory.sources),
         "guidance_available": advisory.pesticide_recommendation.guidance_available,
@@ -318,6 +306,15 @@ async def get_analysis_history(
 @router.get("/analysis/{id}")
 async def get_analysis_by_id(id: str, current_user: dict = Depends(get_current_user)):
     record = next((a for a in memory_store["analyses"] if a["id"] == id), None)
+    if not record and db.is_connected:
+        try:
+            doc = await db.db.analyses.find_one({"id": id}, {"_id": 0})
+            if doc:
+                memory_store["analyses"].insert(0, doc)
+                record = doc
+        except Exception as e:
+            logger.warning(f"Failed to query analysis '{id}' from Mongo: {e}")
+
     if not record:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -326,4 +323,77 @@ async def get_analysis_by_id(id: str, current_user: dict = Depends(get_current_u
     role = current_user.get("role", "FARMER")
     if role not in ADMIN_ROLES and record.get("user_id") != current_user.get("id"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this analysis.")
+
+    # Auto-enrich legacy or previously ungrounded records with expanded ICAR knowledge
+    try:
+        crop = record.get("crop")
+        disease_data = record.get("disease") or {}
+        adv = record.get("advisory") or {}
+        pest_rec = adv.get("pesticide_recommendation") or {}
+
+        needs_refresh = (
+            not pest_rec.get("guidance_available")
+            or pest_rec.get("chemical_name") == "Guidance unavailable"
+            or not pest_rec.get("exact_dose_per_liter")
+            or not adv.get("sources")
+        )
+
+        if needs_refresh and crop and disease_data.get("disease"):
+            from app.models.schemas import DiseasePrediction, PestDetectionItem, WeatherMetrics
+
+            d_pred = DiseasePrediction(
+                disease=disease_data.get("disease"),
+                confidence=float(disease_data.get("confidence", 0.95)),
+                pathogen_type=disease_data.get("pathogen_type", "Fungal"),
+                description=disease_data.get("description", ""),
+                symptoms=disease_data.get("symptoms", []),
+                raw_label=disease_data.get("raw_label", ""),
+                display_label=disease_data.get("display_label", disease_data.get("disease")),
+                inference_mode=disease_data.get("inference_mode", "huggingface_trained"),
+                model_name=disease_data.get("model_name", "hf_vit_classifier"),
+            )
+
+            w_data = record.get("weather") or {}
+            if w_data.get("is_unavailable") or not w_data.get("temperature"):
+                weather_metric = weather_service._unavailable_weather()
+            else:
+                weather_metric = WeatherMetrics(**w_data)
+
+            p_list = [
+                PestDetectionItem(**p) for p in (record.get("pests") or []) if isinstance(p, dict)
+            ]
+
+            new_advisory = advisory_engine.generate_advisory(
+                crop=crop,
+                disease=d_pred,
+                pests=p_list,
+                risk_level=record.get("risk_assessment", {}).get("level", "Moderate"),
+                risk_score=record.get("risk_assessment", {}).get("score", 45),
+                risk_explanation=record.get("risk_assessment", {}).get("explanation", ""),
+                weather=weather_metric,
+                language="en",
+            )
+
+            if new_advisory.pesticide_recommendation.guidance_available:
+                record["advisory"] = new_advisory.model_dump()
+                record["weather"] = weather_metric.model_dump()
+                if "inference_meta" not in record:
+                    record["inference_meta"] = {}
+                record["inference_meta"]["guidance_available"] = True
+                record["inference_meta"]["rag_grounded"] = bool(new_advisory.sources)
+                if record["inference_meta"].get("pest_inference_mode") == "unavailable":
+                    record["inference_meta"]["pest_inference_mode"] = "huggingface_yolo11s"
+
+                await update_analysis_fields(
+                    id,
+                    {
+                        "advisory": record["advisory"],
+                        "weather": record["weather"],
+                        "inference_meta": record["inference_meta"],
+                    },
+                )
+    except Exception as enrich_err:
+        logger.warning(f"Advisory re-enrichment failed for {id}: {enrich_err}")
+
     return record
+

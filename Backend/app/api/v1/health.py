@@ -26,7 +26,7 @@ def _pest_inference_label() -> str:
 router = APIRouter(tags=["Health & Status"])
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     """
     Unauthenticated liveness/readiness probe.

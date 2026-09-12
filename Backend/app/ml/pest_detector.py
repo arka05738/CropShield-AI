@@ -48,10 +48,10 @@ class PestDetectionService:
     """
 
     def __init__(self):
-        self.model_name = "pest-detector-unavailable"
+        self.model_name = settings.PEST_HF_MODEL_ID if settings.USE_PEST_HF_MODEL else "pest-detector-unavailable"
         self.threshold = 0.50
         self._yolo = None
-        self.mode = "unavailable"
+        self.mode = "huggingface_yolo11s" if settings.USE_PEST_HF_MODEL else "unavailable"
         self._try_load_trained_model()
 
     def _try_load_trained_model(self) -> None:

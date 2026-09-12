@@ -1049,3 +1049,8 @@ ICAR_POP_RECORDS = [
         }
     }
 ]
+
+from app.rag.icar_knowledge_additions import NEW_RECORDS
+
+ICAR_POP_RECORDS.extend(NEW_RECORDS)
+

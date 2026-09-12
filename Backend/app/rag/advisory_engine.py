@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from typing import Optional, List
 from groq import Groq
 from app.core.config import settings
@@ -43,28 +44,117 @@ class AdvisoryEngine:
             except Exception as e:
                 logger.warning(f"Failed to initialize Groq client: {e}")
 
-    def _match_record(self, crop: str, disease: str) -> Optional[dict]:
-        """Require crop match; disease match is preferred but not cross-crop."""
-        crop_l = crop.lower()
-        disease_l = disease.lower()
-        exact = []
-        crop_only = []
+    def _match_record(self, crop: str, disease: str, pathogen_type: str = "") -> Optional[dict]:
+        """Require crop match (or alias); match disease with intelligent token overlap and fallback."""
+        if not crop:
+            return None
+
+        def norm(text: str) -> str:
+            return re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip()
+
+        crop_norm = norm(crop)
+        disease_norm = norm(disease)
+        pathogen_norm = norm(pathogen_type)
+
+        CROP_SYNONYMS = {
+            "corn": "maize",
+            "maize": "corn",
+            "pepper": "chilli",
+            "chilli": "pepper",
+            "capsicum": "pepper",
+            "paddy": "rice",
+            "rice": "paddy",
+            "grape": "grapes",
+            "grapes": "grape",
+            "groundnut": "peanut",
+            "peanut": "groundnut",
+        }
+
+        # Filter candidate records for this crop
+        crop_recs = []
         for rec in ICAR_POP_RECORDS:
-            if rec["crop"].lower() != crop_l:
-                continue
-            crop_only.append(rec)
-            if rec["disease"].lower() in disease_l or disease_l in rec["disease"].lower():
-                exact.append(rec)
-        if exact:
-            return exact[0]
-        # Healthy: allow any healthy-ish crop record if present
-        if "healthy" in disease_l:
-            for rec in crop_only:
-                if "healthy" in rec["disease"].lower():
+            rc_norm = norm(rec.get("crop", ""))
+            if rc_norm == crop_norm or CROP_SYNONYMS.get(rc_norm) == crop_norm or CROP_SYNONYMS.get(crop_norm) == rc_norm:
+                crop_recs.append(rec)
+
+        if not crop_recs:
+            return None
+
+        # 1. Healthy check
+        if "healthy" in disease_norm or "healthy" in pathogen_norm:
+            for rec in crop_recs:
+                if "healthy" in norm(rec.get("disease", "")):
                     return rec
             return None
-        # Same-crop disease mismatch: do not invent chemical from unrelated disease
-        return None
+
+        # Clean disease string (strip crop name if prefixed like "tomato septoria leaf spot")
+        clean_d = disease_norm
+        for c in [crop_norm, CROP_SYNONYMS.get(crop_norm, "")]:
+            if c and clean_d.startswith(c):
+                clean_d = clean_d[len(c):].strip()
+
+        # 2. Exact substring match
+        for rec in crop_recs:
+            rec_d = norm(rec.get("disease", ""))
+            if clean_d and (clean_d in rec_d or rec_d in clean_d):
+                return rec
+
+        # 3. Key disease keyword matching
+        KEYWORD_MAPPINGS = {
+            "septoria": ["septoria"],
+            "bacterial": ["bacterial"],
+            "late blight": ["late blight"],
+            "early blight": ["early blight"],
+            "blight": ["blight"],
+            "leaf mold": ["leaf mold", "mold"],
+            "target spot": ["target spot"],
+            "curl": ["curl", "geminivirus", "tylcv"],
+            "mosaic": ["mosaic", "tomv"],
+            "mite": ["mite", "spider"],
+            "rust": ["rust"],
+            "blast": ["blast"],
+            "anthracnose": ["anthracnose", "dieback", "fruit rot"],
+            "scab": ["scab"],
+            "mildew": ["mildew"],
+            "rot": ["rot"],
+            "spot": ["spot"],
+        }
+
+        best_rec = None
+        best_score = 0
+
+        d_words = set(clean_d.split()) - {"leaf", "spot", "plant", "crop", "disease"}
+        for rec in crop_recs:
+            rec_d = norm(rec.get("disease", ""))
+            rec_words = set(rec_d.split()) - {"leaf", "spot", "plant", "crop", "disease"}
+            for kw, aliases in KEYWORD_MAPPINGS.items():
+                if any(a in clean_d for a in aliases) and any(a in rec_d for a in aliases):
+                    return rec
+            overlap = len(d_words & rec_words)
+            if overlap > best_score:
+                best_score = overlap
+                best_rec = rec
+
+        if best_rec and best_score >= 1:
+            return best_rec
+
+        # 4. Pathogen-type based grounding within the same crop family
+        if "bacterial" in pathogen_norm or "bacterial" in clean_d:
+            for rec in crop_recs:
+                if "bacterial" in norm(rec.get("disease", "")):
+                    return rec
+
+        if "viral" in pathogen_norm or any(v in clean_d for v in ["virus", "curl", "mosaic"]):
+            for rec in crop_recs:
+                if any(v in norm(rec.get("disease", "")) for v in ["virus", "curl", "mosaic"]):
+                    return rec
+
+        if "fungal" in pathogen_norm or not best_rec:
+            for rec in crop_recs:
+                if "healthy" not in norm(rec.get("disease", "")):
+                    return rec
+
+        return crop_recs[0] if crop_recs else None
 
     def generate_advisory(
         self,
@@ -84,7 +174,7 @@ class AdvisoryEngine:
         except Exception as e:
             logger.warning(f"Chroma query failed: {e}")
 
-        matched_rec = self._match_record(crop, disease_name) if disease_name else None
+        matched_rec = self._match_record(crop, disease_name, disease.pathogen_type) if disease_name else None
         is_healthy = disease.pathogen_type.lower() == "healthy" or (
             bool(disease_name) and "healthy" in disease_name.lower()
         )

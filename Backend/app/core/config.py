@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=True, extra="allow")
 
     PROJECT_NAME: str = "CropShield AI"
-    VERSION: str = "1.2.2"
+    VERSION: str = "1.2.3"
     API_V1_STR: str = "/api/v1"
 
     JWT_SECRET: str = ""
