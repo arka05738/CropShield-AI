@@ -65,28 +65,43 @@ async def chat_with_assistant(
 
             Language: {req.language or 'en'}
             """
-            resp = client.chat.completions.create(
-                model=settings.GROQ_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_msg},
-                ],
-                max_tokens=600,
-                temperature=0.2,
-            )
-            reply_text = resp.choices[0].message.content
-            return AssistantChatResponse(
-                reply=reply_text,
-                sources=[
-                    SourceReference(
-                        title=doc.get("metadata", {}).get("document_title", "Curated POP record"),
-                        authority=doc.get("metadata", {}).get("authority", "Curated knowledge"),
-                        document_type="Package of Practices",
+            candidate_models = list(dict.fromkeys([
+                settings.GROQ_MODEL,
+                "qwen/qwen3.8-27b",
+                "openai/gpt-oss-120b",
+                "openai/gpt-oss-20b",
+            ]))
+            resp = None
+            for model_name in candidate_models:
+                try:
+                    resp = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_msg},
+                        ],
+                        max_tokens=600,
+                        temperature=0.2,
                     )
-                    for doc in retrieved
-                ],
-                language=req.language or "en",
-            )
+                    break
+                except Exception as model_err:
+                    logger.warning("Assistant model %s failed: %s", model_name, model_err)
+                    continue
+
+            if resp is not None:
+                reply_text = resp.choices[0].message.content
+                return AssistantChatResponse(
+                    reply=reply_text,
+                    sources=[
+                        SourceReference(
+                            title=doc.get("metadata", {}).get("document_title", "Curated POP record"),
+                            authority=doc.get("metadata", {}).get("authority", "Curated knowledge"),
+                            document_type="Package of Practices",
+                        )
+                        for doc in retrieved
+                    ],
+                    language=req.language or "en",
+                )
         except Exception as e:
             logger.warning(f"Groq assistant call error: {e}")
 

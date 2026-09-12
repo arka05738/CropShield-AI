@@ -364,18 +364,44 @@ class AdvisoryEngine:
         fertilizer_adjustments, ipm, monitoring, weather_impact_advisory.
         pesticide_recommendation must use the exact dose string from the grounded document.
         """
-        response = self.groq_client.chat.completions.create(
-            model=settings.GROQ_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.1,
-            max_tokens=1400,
-        )
-        content = response.choices[0].message.content
-        data = json.loads(content)
+        candidate_models = list(dict.fromkeys([
+            settings.GROQ_MODEL,
+            "qwen/qwen3.8-27b",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+        ]))
+
+        data = None
+        for model_name in candidate_models:
+            try:
+                response = self.groq_client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.1,
+                    max_tokens=1400,
+                )
+                content = response.choices[0].message.content
+                data = json.loads(content)
+                break
+            except Exception as model_err:
+                logger.warning("Groq model %s unavailable: %s", model_name, model_err)
+                continue
+
+        if not data:
+            return self._build_grounded_icar_advisory(
+                crop=crop,
+                disease=disease,
+                pests=pests,
+                risk_level=risk_level,
+                risk_score=risk_score,
+                risk_explanation=risk_explanation,
+                weather=weather,
+                matched_rec=matched_rec,
+            )
 
         # Force grounded pesticide fields — never trust LLM for dosage invention
         pest_rec = dict(matched_rec["pesticide"])

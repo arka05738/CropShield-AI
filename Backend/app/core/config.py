@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=True, extra="allow")
 
     PROJECT_NAME: str = "CropShield AI"
-    VERSION: str = "1.2.3"
+    VERSION: str = "1.2.4"
     API_V1_STR: str = "/api/v1"
 
     JWT_SECRET: str = ""
@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     SEED_DEMO_DATA: bool = False
 
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
     HF_TOKEN: str = ""
     USE_HF_SERVERLESS_API: bool = True
     HF_INFERENCE_ROUTER_URL: str = "https://router.huggingface.co/hf-inference/models"
@@ -128,7 +128,7 @@ def _build_settings() -> Settings:
         ENVIRONMENT=os.getenv("ENVIRONMENT", "development"),
         SEED_DEMO_DATA=_bool_env("SEED_DEMO_DATA", False),
         GROQ_API_KEY=os.getenv("GROQ_API_KEY") or os.getenv("GROQ_API", ""),
-        GROQ_MODEL=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        GROQ_MODEL=os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b"),
         HF_TOKEN=os.getenv("HF_TOKEN", ""),
         USE_HF_DISEASE_MODEL=_bool_env("USE_HF_DISEASE_MODEL", True),
         HF_DISEASE_MODEL_ID=os.getenv(
