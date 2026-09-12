@@ -154,7 +154,7 @@ export const CanvasOverlay: React.FC<CanvasOverlayProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="relative rounded-2xl overflow-hidden glass-card border border-emerald-500/20 shadow-2xl">
+    <div ref={containerRef} className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 shadow-md">
       {/* Top Banner Tag */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-emerald-500/30 text-xs font-semibold text-emerald-400">
         <Bug className="w-4 h-4 text-emerald-400 animate-pulse" />
@@ -181,9 +181,9 @@ export const CanvasOverlay: React.FC<CanvasOverlayProps> = ({
       </div>
 
       {/* Bottom Interactive Pest Selector Chips */}
-      <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div className="p-3 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-slate-400 font-medium">Interactive Targets:</span>
+          <span className="text-slate-300 font-semibold">Interactive Targets:</span>
           {pests.length === 0 ? (
             <span className="text-emerald-400 font-semibold flex items-center gap-1">
               ✓ No pest vectors detected on foliage
@@ -200,7 +200,7 @@ export const CanvasOverlay: React.FC<CanvasOverlayProps> = ({
                 className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                   hoveredPest?.name === pest.name
                     ? 'bg-sky-500 text-slate-950 font-bold scale-105'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
                 }`}
               >
                 {pest.name} ({Math.round(pest.confidence * 100)}%)
